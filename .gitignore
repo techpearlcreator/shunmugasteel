@@ -1,0 +1,21 @@
+# PHP backend
+backend/vendor/
+backend/quotes_pdf/
+backend/.env
+backend/uploads/products/
+backend/uploads/categories/
+
+# Node / React
+admin/node_modules/
+frontend/node_modules/
+admin/dist/
+frontend/dist/
+
+# Environment files
+*.env
+.env.local
+.env.production
+
+# OS
+.DS_Store
+Thumbs.db

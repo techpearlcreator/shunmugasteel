@@ -1,0 +1,75 @@
+/* Tailwind utilities only (no preflight reset — Amerce CSS handles resets) */
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+
+/* ── Override Amerce primary color → Shunmuga Steel orange ── */
+:root {
+  --primary: #E67E22;
+  --color-steel-gray: #2C3E50;
+  --color-steel-dark: #1A252F;
+  --color-orange: #E67E22;
+}
+
+/* ── Root layout ── */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Logo steel-tag sub-text ── */
+.logo-site .steel-tag {
+  font-size: 10px;
+  color: #E67E22;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-family: sans-serif;
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Infinite marquee animation ── */
+@keyframes infiniteSlide {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-33.333%); }
+}
+
+/* ── Active tab button orange ── */
+.tf-btn-tab.active {
+  color: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+
+/* ── Mobile menu overlay ── */
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+}
+.mobile-menu-panel {
+  background: #fff;
+  width: 300px;
+  padding: 24px;
+  overflow-y: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.mobile-menu-panel .mobile-nav-link {
+  display: block;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #101010;
+  text-decoration: none;
+}
+.mobile-menu-panel .mobile-nav-link:hover {
+  color: #E67E22;
+}
+.mobile-menu-backdrop {
+  flex: 1;
+  background: rgba(0,0,0,0.5);
+}

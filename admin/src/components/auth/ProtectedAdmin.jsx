@@ -1,0 +1,1 @@
+import{Navigate}from"react-router-dom";import{useAdminAuthStore}from"../../store/adminAuthStore";export default function ProtectedAdmin({children}){const a=useAdminAuthStore((s)=>s.isAuthenticated);return a?children:<Navigate to="/login" replace />}
