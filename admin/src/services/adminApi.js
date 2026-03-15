@@ -53,6 +53,15 @@ export const uploadProductImage = (id, file) => {
 export const setPrimaryImage  = (productId, imageId) => adminApi.put(`/admin/products/${productId}/images/${imageId}`)
 export const deleteProductImage = (productId, imageId) => adminApi.delete(`/admin/products/${productId}/images/${imageId}`)
 
+// ── CATEGORY IMAGE ────────────────────────
+export const uploadCategoryImage = (id, file) => {
+  const fd = new FormData()
+  fd.append('image', file)
+  return adminApi.post(`/admin/categories/${id}/image`, fd, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+}
+
 // ── QUOTES ────────────────────────────────
 export const getQuotes       = (status) => adminApi.get('/admin/quotes', { params: { status } })
 export const getQuote        = (id) => adminApi.get(`/admin/quotes/${id}`)
@@ -61,9 +70,6 @@ export const updateQuoteStatus = (id, data) => adminApi.patch(`/admin/quotes/${i
 // ── CUSTOMERS ─────────────────────────────
 export const getCustomers    = () => adminApi.get('/admin/customers')
 export const getCustomer     = (id) => adminApi.get(`/admin/customers/${id}`)
-
-// ── PAYMENTS ──────────────────────────────
-export const getPayments     = () => adminApi.get('/admin/payments')
 
 // ── SETTINGS ──────────────────────────────
 export const getSettings     = (group) => adminApi.get('/admin/settings', { params: { group } })

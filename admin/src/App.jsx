@@ -10,7 +10,6 @@ import Products from './pages/Products'
 import QuoteLogs from './pages/QuoteLogs'
 import QuoteDetail from './pages/quotes/QuoteDetail'
 import Customers from './pages/Customers'
-import Payments from './pages/Payments'
 import Settings from './pages/Settings'
 
 export default function App() {
@@ -26,7 +25,6 @@ export default function App() {
           <Route path="quotes" element={<QuoteLogs />} />
           <Route path="quotes/:id" element={<QuoteDetail />} />
           <Route path="customers" element={<Customers />} />
-          <Route path="payments" element={<Payments />} />
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
