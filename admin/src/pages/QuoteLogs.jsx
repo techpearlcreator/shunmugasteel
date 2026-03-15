@@ -4,17 +4,8 @@ import { getQuotes } from '../services/adminApi'
 import Badge from '../components/ui/Badge'
 import Spinner from '../components/ui/Spinner'
 
-const STATUSES = ['', 'submitted', 'reviewed', 'confirmed', 'payment_pending', 'paid', 'dispatched', 'cancelled']
+const STATUSES = ['', 'submitted', 'reviewed', 'confirmed', 'dispatched', 'cancelled']
 
-const STATUS_COLORS = {
-  submitted:       '#F97316',
-  reviewed:        '#3B82F6',
-  confirmed:       '#8B5CF6',
-  payment_pending: '#F59E0B',
-  paid:            '#10B981',
-  dispatched:      '#06B6D4',
-  cancelled:       '#EF4444',
-}
 
 const S = {
   page: { display: 'flex', flexDirection: 'column', gap: 20 },

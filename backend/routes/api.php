@@ -5,7 +5,6 @@ require_once __DIR__ . '/../controllers/AuthController.php';
 require_once __DIR__ . '/../controllers/CategoryController.php';
 require_once __DIR__ . '/../controllers/ProductController.php';
 require_once __DIR__ . '/../controllers/QuoteController.php';
-require_once __DIR__ . '/../controllers/PaymentController.php';
 require_once __DIR__ . '/../controllers/AdminController.php';
 
 // Parse request
@@ -87,30 +86,6 @@ elseif ($segments[0] === 'quotes') {
     }
 }
 
-// Payments
-elseif ($segments[0] === 'payment') {
-    $sub = $segments[1] ?? '';
-
-    // Webhook — no auth, no JSON content-type required
-    if ($sub === 'webhook') {
-        $ctrl = new PaymentController();
-        $ctrl->webhook();
-    }
-
-    AuthMiddleware::require();
-    $ctrl = new PaymentController();
-
-    if ($sub === 'create-order' && $method === 'POST') {
-        $ctrl->createOrder();
-    } elseif ($sub === 'verify' && $method === 'POST') {
-        $ctrl->verify();
-    } elseif ($sub === 'quote' && isset($segments[2])) {
-        $ctrl->getByQuote($segments[2]);
-    } else {
-        respond(404, 'Route not found');
-    }
-}
-
 // One-time admin setup — DELETE this block after use
 // Access: GET /setup?key=sst_setup_2024
 elseif ($segments[0] === 'setup') {
@@ -159,8 +134,11 @@ elseif ($segments[0] === 'admin') {
     $sub2 = $segments[3] ?? null; // e.g. "variants" or "pricing"
     $id2  = $segments[4] ?? null; // e.g. variant id
 
+    // Sub-resource routes: /admin/categories/:id/image
+    if ($sub === 'categories' && $id && $sub2 === 'image') {
+        $ctrl->categoryImage($id);
     // Sub-resource routes: /admin/products/:id/variants|pricing|images
-    if ($sub === 'products' && $id && $sub2 === 'variants') {
+    } elseif ($sub === 'products' && $id && $sub2 === 'variants') {
         $ctrl->productVariants($method, $id, $id2);
     } elseif ($sub === 'products' && $id && $sub2 === 'pricing') {
         $ctrl->productPricing($method, $id);

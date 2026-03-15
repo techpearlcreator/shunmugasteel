@@ -95,7 +95,7 @@ export default function Footer() {
                       <li><Link to="/login" className="cl-text-3 link">Login</Link></li>
                       <li><Link to="/register" className="cl-text-3 link">Register</Link></li>
                       <li><Link to="/my-quotes" className="cl-text-3 link">My Quotes</Link></li>
-                      <li><Link to="/dashboard/profile" className="cl-text-3 link">My Profile</Link></li>
+                      <li><Link to="/profile" className="cl-text-3 link">My Profile</Link></li>
                     </ul>
                   </div>
                 </div>

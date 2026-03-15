@@ -5,16 +5,14 @@ import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 import Spinner from '../../components/ui/Spinner'
 
-const STATUSES = ['submitted', 'reviewed', 'confirmed', 'payment_pending', 'paid', 'dispatched', 'cancelled']
+const STATUSES = ['submitted', 'reviewed', 'confirmed', 'dispatched', 'cancelled']
 
 const STATUS_DOT = {
-  submitted:       '#F97316',
-  reviewed:        '#3B82F6',
-  confirmed:       '#8B5CF6',
-  payment_pending: '#F59E0B',
-  paid:            '#10B981',
-  dispatched:      '#06B6D4',
-  cancelled:       '#EF4444',
+  submitted:  '#F97316',
+  reviewed:   '#3B82F6',
+  confirmed:  '#8B5CF6',
+  dispatched: '#06B6D4',
+  cancelled:  '#EF4444',
 }
 
 const safeJson = (val) => {

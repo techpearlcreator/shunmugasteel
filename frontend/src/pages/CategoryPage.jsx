@@ -44,10 +44,11 @@ function ProductCard({ product }) {
   const addItem = useQuoteStore((s) => s.addItem)
   const navigate = useNavigate()
   const isCustom = product.product_type === 'custom'
+  const basePrice = product.starting_price ?? product.base_price ?? null
 
   function handleQuote(e) {
     e.preventDefault()
-    const price = isCustom ? 0 : (product.base_price || 0)
+    const price = isCustom ? 0 : (basePrice || 0)
     addItem({
       product: { id: product.id, name: product.name, slug: product.slug },
       variant: null,
@@ -57,7 +58,7 @@ function ProductCard({ product }) {
       total_price: price,
       specs: '',
       is_custom: isCustom,
-      image: cdnImg(product.image_url),
+      image: product.primary_image || cdnImg(product.image_url || ''),
     })
     navigate('/quote-basket')
   }
@@ -70,7 +71,7 @@ function ProductCard({ product }) {
             className="img-product"
             loading="lazy"
             width="330" height="330"
-            src={cdnImg(product.image_url)}
+            src={product.primary_image || cdnImg(product.image_url || '')}
             alt={product.name}
             onError={(e) => { e.target.style.display = 'none' }}
           />
@@ -78,7 +79,7 @@ function ProductCard({ product }) {
             className="img-hover"
             loading="lazy"
             width="330" height="330"
-            src={cdnImg(product.image_url)}
+            src={product.primary_image || cdnImg(product.image_url || '')}
             alt={product.name}
             onError={(e) => { e.target.style.display = 'none' }}
           />
@@ -107,12 +108,12 @@ function ProductCard({ product }) {
           {product.name}
         </Link>
         <div className="price-wrap">
-          {isCustom ? (
+          {isCustom || !basePrice ? (
             <span className="price-new text-primary fw-semibold">Price on Request</span>
           ) : (
             <>
               <span className="price-new text-primary fw-semibold">
-                &#x20b9;{Number(product.base_price).toLocaleString('en-IN')}/MT
+                &#x20b9;{Number(basePrice).toLocaleString('en-IN')}/MT
               </span>
               <span className="price-old text-caption-01 cl-text-3">+ GST</span>
             </>

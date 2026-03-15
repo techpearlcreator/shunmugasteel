@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { getCategories, createCategory, updateCategory, deleteCategory } from '../services/adminApi'
+import { useRef } from 'react'
+import { getCategories, createCategory, updateCategory, deleteCategory, uploadCategoryImage } from '../services/adminApi'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 import Modal from '../components/ui/Modal'
@@ -52,6 +53,8 @@ export default function Categories() {
   const [editing, setEditing]   = useState(null)
   const [form, setForm]         = useState(EMPTY)
   const [error, setError]       = useState('')
+  const [imgUploading, setImgUploading] = useState(false)
+  const fileInputRef = useRef(null)
 
   const load = () => {
     setLoading(true)
@@ -79,6 +82,12 @@ export default function Categories() {
     setDeleting(true)
     try { await deleteCategory(confirm.id); setConfirm(null); load() }
     finally { setDeleting(false) }
+  }
+
+  const toggleStatus = async (cat) => {
+    const newStatus = cat.status === 'active' ? 'inactive' : 'active'
+    await updateCategory(cat.id, { ...cat, status: newStatus })
+    setCats((prev) => prev.map((c) => c.id === cat.id ? { ...c, status: newStatus } : c))
   }
 
   const tree = parents.flatMap((p) => [p, ...cats.filter((c) => c.parent_id == p.id)])
@@ -141,6 +150,12 @@ export default function Categories() {
                     <td style={S.tdActions}>
                       <div style={S.actionsWrap}>
                         <button onClick={() => openEdit(cat)} style={S.editBtn}>Edit</button>
+                        <button
+                          onClick={() => toggleStatus(cat)}
+                          style={{ ...S.editBtn, color: cat.status === 'active' ? '#D97706' : '#16A34A' }}
+                        >
+                          {cat.status === 'active' ? 'Disable' : 'Enable'}
+                        </button>
                         <button onClick={() => setConfirm(cat)} style={S.deleteBtn}>Delete</button>
                       </div>
                     </td>
@@ -176,12 +191,48 @@ export default function Categories() {
               onChange={(e) => setForm({ ...form, slug: slugify(e.target.value) })}
             />
           </div>
-          <FormInput
-            label="Image Path"
-            placeholder="uploads/categories/name.jpg"
-            value={form.image}
-            onChange={(e) => setForm({ ...form, image: e.target.value })}
-          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label style={{ fontSize: 12, fontWeight: 600, color: '#64748B' }}>Category Image</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {form.image && (
+                <img
+                  src={form.image.startsWith('http') ? form.image : `http://localhost/shunmugasteel/backend/${form.image}`}
+                  alt=""
+                  style={{ width: 60, height: 60, borderRadius: 8, objectFit: 'cover', border: '1px solid #E2E8F0' }}
+                  onError={(e) => { e.target.style.display = 'none' }}
+                />
+              )}
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', border: '1px solid #E2E8F0', borderRadius: 8, cursor: imgUploading ? 'wait' : 'pointer', background: '#F8FAFC', fontSize: 13, color: '#64748B', fontWeight: 500 }}>
+                {imgUploading ? '⏳ Uploading…' : '📁 Choose Image'}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  style={{ display: 'none' }}
+                  disabled={imgUploading}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0]
+                    if (!file) return
+                    if (!editing) {
+                      setError('Save the category first, then upload an image.')
+                      return
+                    }
+                    setImgUploading(true)
+                    try {
+                      const r = await uploadCategoryImage(editing.id, file)
+                      setForm((f) => ({ ...f, image: r.data.image_path }))
+                    } catch {
+                      setError('Image upload failed. Please try again.')
+                    } finally {
+                      setImgUploading(false)
+                      e.target.value = ''
+                    }
+                  }}
+                />
+              </label>
+              {!editing && <span style={{ fontSize: 12, color: '#94A3B8' }}>Save category first to upload image</span>}
+            </div>
+          </div>
           <FormTextarea
             label="Description"
             value={form.description}

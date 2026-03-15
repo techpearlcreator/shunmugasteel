@@ -25,7 +25,7 @@ export default function AboutPage() {
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #E67E22 0, #E67E22 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }} />
         <div className="relative max-w-5xl mx-auto px-4 text-center">
           <div className="inline-block bg-orange-500 bg-opacity-20 border border-orange-500 border-opacity-30 rounded-full px-4 py-1.5 mb-5">
-            <span className="text-orange-400 text-sm font-medium">Est. 1976 — Tamil Nadu</span>
+            <span className="text-white text-sm font-medium">Est. 1976 — Tamil Nadu</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight">
             48 Years of Steel Excellence

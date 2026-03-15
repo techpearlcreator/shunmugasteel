@@ -6,8 +6,7 @@
         "php": ">=8.2",
         "dompdf/dompdf": "^3.0",
         "phpmailer/phpmailer": "^6.9",
-        "razorpay/razorpay": "^2.9",
-        "aws/aws-sdk-php": "^3.0"
+        "aws/aws-sdk-php": "^3.373"
     },
     "autoload": {
         "psr-4": {

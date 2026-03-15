@@ -78,7 +78,7 @@ export default function LoginPage() {
             <button
               type="submit" disabled={loading}
               className="w-full py-3 rounded-xl font-semibold text-white text-sm transition-all disabled:opacity-60"
-              style={{ background: '#E67E22' }}
+              style={{ background: '#E67E22', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               onMouseOver={(e) => e.currentTarget.style.background = '#d35400'}
               onMouseOut={(e) => e.currentTarget.style.background = '#E67E22'}
             >

@@ -4,13 +4,11 @@ import { quoteService } from '../../services/quoteService'
 import { useAuthStore } from '../../store/authStore'
 
 const STATUS_CONFIG = {
-  submitted:       { label: 'Submitted',        color: 'bg-yellow-100 text-yellow-800' },
-  reviewed:        { label: 'Under Review',      color: 'bg-blue-100 text-blue-800' },
-  confirmed:       { label: 'Quote Confirmed',   color: 'bg-purple-100 text-purple-800' },
-  payment_pending: { label: 'Payment Pending',   color: 'bg-orange-100 text-orange-800' },
-  paid:            { label: 'Paid',              color: 'bg-green-100 text-green-800' },
-  dispatched:      { label: 'Dispatched',        color: 'bg-teal-100 text-teal-800' },
-  cancelled:       { label: 'Cancelled',         color: 'bg-red-100 text-red-800' },
+  submitted:  { label: 'Submitted',      color: 'bg-yellow-100 text-yellow-800' },
+  reviewed:   { label: 'Under Review',   color: 'bg-blue-100 text-blue-800' },
+  confirmed:  { label: 'Quote Confirmed',color: 'bg-purple-100 text-purple-800' },
+  dispatched: { label: 'Dispatched',     color: 'bg-teal-100 text-teal-800' },
+  cancelled:  { label: 'Cancelled',      color: 'bg-red-100 text-red-800' },
 }
 
 const FALLBACK_QUOTES = [
@@ -105,10 +103,7 @@ export default function MyQuotes() {
                 </div>
                 <div className="mt-4 flex items-center gap-3 flex-wrap pt-4 border-t border-gray-100">
                   <Link to={'/my-quotes/' + quote.id} className="text-sm font-medium" style={{ color: '#E67E22' }}>View Details &rarr;</Link>
-                  {quote.status === 'confirmed' && (
-                    <Link to={'/my-quotes/' + quote.id} className="text-sm font-semibold px-3 py-1.5 rounded-lg text-white" style={{ background: '#E67E22' }}>Pay Now</Link>
-                  )}
-                  {['confirmed', 'paid', 'dispatched'].includes(quote.status) && (
+                  {['confirmed', 'dispatched'].includes(quote.status) && (
                     <button onClick={(e) => handleDownloadPDF(quote.id, e)} className="text-sm text-gray-500 hover:text-gray-700">&#8615; Download PDF</button>
                   )}
                 </div>

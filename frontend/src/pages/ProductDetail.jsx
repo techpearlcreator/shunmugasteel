@@ -82,11 +82,6 @@ const FALLBACK_PRODUCTS = {
   },
 }
 
-// Related products suggestion map
-const RELATED = {
-  'flat-products': ['HR Coils & Sheets', 'CR Coils & Sheets', 'GP Sheets & Coils'],
-  'roofing-products': ['Decking Sheets', 'PUF Panels', 'Purlin'],
-}
 
 export default function ProductDetail() {
   const { productSlug } = useParams()
@@ -146,10 +141,9 @@ export default function ProductDetail() {
       })
       setCalcResult(res.data?.data || res.data)
     } catch {
-      // Fallback calculation: weight = (thickness × width × length × density × qty) / 1000
-      // Steel density ≈ 7.85 kg/m³ factor
-      const weight = ((parseFloat(customThick) / 1000) * (parseFloat(customWidth) / 1000) * parseFloat(customLength) * 7.85 * parseFloat(customQty)).toFixed(2)
-      setCalcResult({ weight_mt: (weight / 1000).toFixed(3), estimated: true })
+      // Fallback calculation: weight (MT) = thickness(m) × width(m) × length(m) × density(7.85 T/m³) × qty
+      const weight_mt = (parseFloat(customThick) / 1000) * (parseFloat(customWidth) / 1000) * parseFloat(customLength) * 7.85 * parseFloat(customQty)
+      setCalcResult({ weight_mt: weight_mt.toFixed(3), estimated: true })
     }
     setCalculating(false)
   }
@@ -158,12 +152,12 @@ export default function ProductDetail() {
     if (!selectedVariant) return
     addItem({
       product: { id: product.id, name: product.name, slug: product.slug },
-      variant: { id: selectedVariant.id, name: selectedVariant.name },
+      variant: { id: selectedVariant.id, name: selectedVariant.variant_name || selectedVariant.name },
       quantity,
-      unit: 'MT',
-      unit_price: selectedVariant.price || product.base_price,
-      total_price: (selectedVariant.price || product.base_price) * quantity,
-      specs: selectedVariant.name,
+      unit: selectedVariant.unit || 'MT',
+      unit_price: selectedVariant.price_per_unit || selectedVariant.price || 0,
+      total_price: (selectedVariant.price_per_unit || selectedVariant.price || 0) * quantity,
+      specs: selectedVariant.variant_name || selectedVariant.name,
       is_custom: false,
     })
     setAddedMsg('Added to quote basket!')
@@ -198,27 +192,36 @@ export default function ProductDetail() {
   const isCustom = product.product_type === 'custom'
   const gst = product.gst_rate || 18
 
-  const stdPrice = selectedVariant?.price || product.base_price
+  const stdPrice = selectedVariant?.price_per_unit || selectedVariant?.price || product.base_price || product.starting_price
   const stdTotal = stdPrice * quantity
   const stdGst = (stdTotal * gst) / 100
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
-      {/* Breadcrumb */}
-      <nav className="text-sm text-gray-400 mb-6">
-        <Link to="/" className="hover:text-orange-400">Home</Link>
-        <span className="mx-2">&#8250;</span>
-        <Link to={'/products/' + (product.category_slug || 'flat-products')} className="hover:text-orange-400">{product.category_name || 'Products'}</Link>
-        <span className="mx-2">&#8250;</span>
-        <span className="text-gray-600">{product.name}</span>
-      </nav>
+      {/* Back button + Breadcrumb */}
+      <div className="mb-6">
+        <button
+          onClick={() => navigate(-1)}
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-3 transition-colors"
+          style={{ background: 'none', border: '1px solid #e5e7eb', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer' }}
+        >
+          &#8592; Back
+        </button>
+        <nav className="text-sm text-gray-400">
+          <Link to="/" className="hover:text-orange-400">Home</Link>
+          <span className="mx-2">&#8250;</span>
+          <Link to={'/products/' + (product.category_slug || 'flat-products')} className="hover:text-orange-400">{product.category_name || 'Products'}</Link>
+          <span className="mx-2">&#8250;</span>
+          <span className="text-gray-600">{product.name}</span>
+        </nav>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Image */}
         <div>
           <div className="rounded-xl overflow-hidden bg-gray-100 aspect-square flex items-center justify-center">
             <img
-              src={cdnImg(product.image_url || PRODUCT_IMAGES[productSlug] || '')}
+              src={product.primary_image || product.images?.[0]?.image_url || cdnImg(product.image_url || PRODUCT_IMAGES[productSlug] || '')}
               alt={product.name}
               className="w-full h-full object-cover"
               onError={(e) => { e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><rect fill="%232C3E50" width="600" height="600"/><text fill="%23E67E22" font-size="20" font-family="sans-serif" x="300" y="310" text-anchor="middle">Steel Product</text></svg>' }}
@@ -250,8 +253,8 @@ export default function ProductDetail() {
               <div className="rounded-lg border border-gray-200 overflow-hidden">
                 {product.specs.map((s, i) => (
                   <div key={i} className={`flex text-sm ${i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
-                    <div className="w-40 px-4 py-2.5 font-medium text-gray-500 border-r border-gray-200">{s.label}</div>
-                    <div className="flex-1 px-4 py-2.5 text-gray-800">{s.value}</div>
+                    <div className="w-40 px-4 py-2.5 font-medium text-gray-500 border-r border-gray-200">{s.spec_name || s.label}</div>
+                    <div className="flex-1 px-4 py-2.5 text-gray-800">{s.spec_value || s.value}</div>
                   </div>
                 ))}
               </div>
@@ -275,7 +278,10 @@ export default function ProductDetail() {
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-orange-400"
                   >
                     {product.variants.map((v) => (
-                      <option key={v.id} value={v.id}>{v.name} — {'\u20b9'}{Number(v.price).toLocaleString('en-IN')}/MT</option>
+                      <option key={v.id} value={v.id}>
+                        {v.variant_name || v.name}
+                        {(v.price_per_unit || v.price) > 0 ? ` — ₹${Number(v.price_per_unit || v.price).toLocaleString('en-IN')}/${v.unit || 'MT'}` : ' — Price on Request'}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -315,7 +321,7 @@ export default function ProductDetail() {
                 onClick={handleAddStandard}
                 disabled={!selectedVariant}
                 className="w-full py-3 rounded-lg font-semibold text-white transition-all disabled:opacity-50"
-                style={{ background: '#E67E22' }}
+                style={{ background: '#E67E22', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 onMouseOver={(e) => e.currentTarget.style.background = '#d35400'}
                 onMouseOut={(e) => e.currentTarget.style.background = '#E67E22'}
               >
@@ -364,7 +370,7 @@ export default function ProductDetail() {
                 </div>
               )}
 
-              <button onClick={handleAddCustom} disabled={!customThick || !customWidth || !customLength || !customQty} className="w-full py-3 rounded-lg font-semibold text-white transition-all disabled:opacity-50" style={{ background: '#E67E22' }} onMouseOver={(e) => e.currentTarget.style.background = '#d35400'} onMouseOut={(e) => e.currentTarget.style.background = '#E67E22'}>
+              <button onClick={handleAddCustom} disabled={!customThick || !customWidth || !customLength || !customQty} className="w-full py-3 rounded-lg font-semibold text-white transition-all disabled:opacity-50" style={{ background: '#E67E22', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onMouseOver={(e) => e.currentTarget.style.background = '#d35400'} onMouseOut={(e) => e.currentTarget.style.background = '#E67E22'}>
                 + Add to Quote Basket
               </button>
               <p className="text-xs text-gray-500 mt-2 text-center">Our team will confirm pricing within 2 hours</p>

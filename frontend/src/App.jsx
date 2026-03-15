@@ -16,7 +16,6 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
 import QuoteBasketPage from './pages/QuoteBasketPage'
-import PaymentSuccessPage from './pages/PaymentSuccessPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 // Pages — Customer Dashboard
@@ -42,7 +41,6 @@ export default function App() {
             <Route path="reset-password" element={<ResetPasswordPage />} />
             <Route path="verify-email" element={<VerifyEmailPage />} />
             <Route path="quote-basket" element={<QuoteBasketPage />} />
-            <Route path="payment/success" element={<ProtectedRoute><PaymentSuccessPage /></ProtectedRoute>} />
             <Route path="my-quotes" element={<ProtectedRoute><MyQuotes /></ProtectedRoute>} />
             <Route path="my-quotes/:id" element={<ProtectedRoute><QuoteDetail /></ProtectedRoute>} />
             <Route path="profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />

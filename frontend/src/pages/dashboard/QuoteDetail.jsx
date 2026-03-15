@@ -1,18 +1,15 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { quoteService } from '../../services/quoteService'
-import { paymentService } from '../../services/paymentService'
 
 const STATUS_STEPS = [
-  { key: 'submitted',       label: 'Submitted',    desc: 'Your quote request has been received' },
-  { key: 'reviewed',        label: 'Under Review', desc: 'Our team is reviewing your requirements' },
-  { key: 'confirmed',       label: 'Confirmed',    desc: 'Pricing confirmed — payment enabled' },
-  { key: 'payment_pending', label: 'Payment',      desc: 'Awaiting payment confirmation' },
-  { key: 'paid',            label: 'Paid',         desc: 'Payment received' },
-  { key: 'dispatched',      label: 'Dispatched',   desc: 'Material dispatched to delivery address' },
+  { key: 'submitted',  label: 'Submitted',    desc: 'Your quote request has been received' },
+  { key: 'reviewed',   label: 'Under Review', desc: 'Our team is reviewing your requirements' },
+  { key: 'confirmed',  label: 'Confirmed',    desc: 'Pricing confirmed — our team will contact you' },
+  { key: 'dispatched', label: 'Dispatched',   desc: 'Material dispatched to delivery address' },
 ]
 
-const STATUS_ORDER = ['submitted', 'reviewed', 'confirmed', 'payment_pending', 'paid', 'dispatched']
+const STATUS_ORDER = ['submitted', 'reviewed', 'confirmed', 'dispatched']
 
 const FALLBACK_QUOTE = {
   id: 1,
@@ -75,21 +72,8 @@ function StatusTimeline({ currentStatus, timeline }) {
 
 export default function QuoteDetail() {
   const { id } = useParams()
-  const navigate = useNavigate()
   const [quote, setQuote] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [paying, setPaying] = useState(false)
-
-  /* Load Razorpay checkout script once */
-  useEffect(() => {
-    if (document.getElementById('rzp-script')) return
-    const s = document.createElement('script')
-    s.id = 'rzp-script'
-    s.src = 'https://checkout.razorpay.com/v1/checkout.js'
-    s.async = true
-    document.body.appendChild(s)
-  }, [])
-
   useEffect(() => {
     quoteService.getQuoteById(id)
       .then((res) => {
@@ -110,49 +94,6 @@ export default function QuoteDetail() {
       window.URL.revokeObjectURL(url)
     } catch {
       alert('PDF download failed. Please try again.')
-    }
-  }
-
-  const handlePayment = async () => {
-    if (!window.Razorpay) { alert('Payment gateway not loaded. Please refresh and try again.'); return }
-    setPaying(true)
-    try {
-      const res = await paymentService.createOrder(quote.id)
-      const { order_id, amount, currency, key_id } = res.data?.data || res.data
-      const options = {
-        key: key_id,
-        amount,
-        currency: currency || 'INR',
-        name: 'Shunmuga Steel Traders',
-        description: `Quote ${quote.quote_number || quote.id}`,
-        order_id,
-        handler: async (response) => {
-          try {
-            await paymentService.verifyPayment({
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_signature: response.razorpay_signature,
-              quote_id: quote.id,
-            })
-            navigate(
-              `/payment/success?quote_id=${quote.id}&quote_number=${encodeURIComponent(quote.quote_number || '')}&payment_id=${response.razorpay_payment_id}`
-            )
-          } catch {
-            alert('Payment verification failed. Please contact support.')
-          }
-        },
-        prefill: {
-          name: quote.delivery_address?.name || '',
-          contact: quote.delivery_address?.phone || '',
-        },
-        theme: { color: '#E67E22' },
-        modal: { ondismiss: () => setPaying(false) },
-      }
-      const rzp = new window.Razorpay(options)
-      rzp.open()
-    } catch {
-      alert('Payment initialization failed. Please try again.')
-      setPaying(false)
     }
   }
 
@@ -178,17 +119,7 @@ export default function QuoteDetail() {
           <p className="text-sm text-gray-500 mt-1">Submitted on {formatDate(quote.created_at)}</p>
         </div>
         <div className="flex gap-3 flex-wrap">
-          {quote.status === 'confirmed' && (
-            <button
-              onClick={handlePayment}
-              disabled={paying}
-              className="text-sm font-semibold px-5 py-2 rounded-lg text-white disabled:opacity-60"
-              style={{ background: '#E67E22' }}
-            >
-              {paying ? 'Processing...' : '&#128179; Pay Advance Now'}
-            </button>
-          )}
-          {['confirmed', 'paid', 'dispatched'].includes(quote.status) && (
+          {['confirmed', 'dispatched'].includes(quote.status) && (
             <button onClick={handleDownloadPDF} className="text-sm font-semibold px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:border-gray-400">
               &#8615; Download PDF
             </button>
@@ -231,7 +162,14 @@ export default function QuoteDetail() {
                   <div>
                     <p className="font-medium text-gray-800 text-sm">{item.product_name}</p>
                     {item.variant_name && <p className="text-xs text-gray-500 mt-0.5">Size: {item.variant_name}</p>}
-                    {item.specs && item.specs !== item.variant_name && <p className="text-xs text-gray-500">Specs: {item.specs}</p>}
+                    {item.specs && (() => {
+                      const specsStr = typeof item.specs === 'object'
+                        ? Object.entries(item.specs).filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join(', ')
+                        : String(item.specs)
+                      return specsStr && specsStr !== item.variant_name
+                        ? <p className="text-xs text-gray-500">Specs: {specsStr}</p>
+                        : null
+                    })()}
                     <p className="text-xs text-gray-400 mt-1">Qty: {item.quantity} {item.unit}</p>
                     {item.is_custom && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">Custom</span>}
                   </div>
