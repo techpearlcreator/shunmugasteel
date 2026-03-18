@@ -8,6 +8,11 @@ class ProductController {
         $this->db = Database::getInstance();
     }
 
+    private static function imageUrl(?string $path): string {
+        if (!$path) return '';
+        return str_starts_with($path, 'http') ? $path : BASE_URL . '/' . $path;
+    }
+
     public function index(): never {
         $where = ['p.status = "active"'];
         $params = [];
@@ -59,8 +64,11 @@ class ProductController {
             ORDER BY p.sort_order ASC, p.name ASC
         ");
         $stmt->execute($params);
-
-        respond(200, $stmt->fetchAll());
+        $products = $stmt->fetchAll();
+        foreach ($products as &$p) {
+            $p['primary_image'] = self::imageUrl($p['primary_image'] ?? '');
+        }
+        respond(200, $products);
     }
 
     public function showBySlug(string $slug): never {
@@ -78,7 +86,20 @@ class ProductController {
         // Images
         $stmt = $this->db->prepare('SELECT * FROM product_images WHERE product_id = ? ORDER BY sort_order');
         $stmt->execute([$product['id']]);
-        $product['images'] = $stmt->fetchAll();
+        $imgs = $stmt->fetchAll();
+        foreach ($imgs as &$img) {
+            $img['image_url'] = self::imageUrl($img['image_path']);
+        }
+        $product['images'] = $imgs;
+
+        // Videos
+        $stmt = $this->db->prepare('SELECT * FROM product_videos WHERE product_id = ? ORDER BY sort_order');
+        $stmt->execute([$product['id']]);
+        $vids = $stmt->fetchAll();
+        foreach ($vids as &$vid) {
+            $vid['video_url'] = self::imageUrl($vid['video_path']);
+        }
+        $product['videos'] = $vids;
 
         // Specs
         $stmt = $this->db->prepare('SELECT * FROM product_specs WHERE product_id = ? ORDER BY sort_order');

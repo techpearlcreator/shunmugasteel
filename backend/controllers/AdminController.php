@@ -10,6 +10,11 @@ class AdminController {
         $this->db = Database::getInstance();
     }
 
+    private static function imageUrl(?string $path): string {
+        if (!$path) return '';
+        return str_starts_with($path, 'http') ? $path : BASE_URL . '/' . $path;
+    }
+
     // GET /admin/dashboard
     public function dashboard(): never {
         $stats = [];
@@ -74,6 +79,31 @@ class AdminController {
         }
     }
 
+    // Category Image Upload — POST /admin/categories/:id/image
+    public function categoryImage(string $categoryId): never {
+        if (!isset($_FILES['image'])) respond(400, 'No image file');
+        $file = $_FILES['image'];
+        if ($file['error'] !== UPLOAD_ERR_OK) respond(400, 'Upload error: ' . $file['error']);
+
+        $allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (!in_array($file['type'], $allowed)) respond(400, 'Only JPG, PNG, WEBP allowed');
+        if ($file['size'] > 5 * 1024 * 1024) respond(400, 'Max file size is 5MB');
+
+        $uploadDir = __DIR__ . '/../uploads/categories/';
+        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+        $ext      = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $filename = 'cat_' . $categoryId . '_' . uniqid() . '.' . $ext;
+        $dest     = $uploadDir . $filename;
+
+        if (!move_uploaded_file($file['tmp_name'], $dest)) respond(500, 'Failed to save image');
+
+        $storedPath = 'uploads/categories/' . $filename;
+        $this->db->prepare('UPDATE categories SET image = ? WHERE id = ?')->execute([$storedPath, $categoryId]);
+
+        respond(200, ['image_path' => self::imageUrl($storedPath)]);
+    }
+
     // Products CRUD
     public function products(string $method, ?string $id): never {
         switch ($method) {
@@ -109,6 +139,9 @@ class AdminController {
                     LEFT JOIN categories c ON c.id = p.category_id
                     ORDER BY p.category_id ASC, p.sort_order ASC
                 ')->fetchAll();
+                foreach ($rows as &$r) {
+                    $r['primary_image'] = self::imageUrl($r['primary_image'] ?? '');
+                }
                 respond(200, $rows);
 
             case 'POST':
@@ -246,7 +279,11 @@ class AdminController {
             case 'GET':
                 $stmt = $this->db->prepare('SELECT * FROM product_images WHERE product_id = ? ORDER BY is_primary DESC, sort_order ASC');
                 $stmt->execute([$productId]);
-                respond(200, $stmt->fetchAll());
+                $imgs = $stmt->fetchAll();
+                foreach ($imgs as &$img) {
+                    $img['image_path'] = self::imageUrl($img['image_path']);
+                }
+                respond(200, $imgs);
 
             case 'POST':
                 if (!isset($_FILES['image'])) respond(400, 'No image file');
@@ -257,9 +294,25 @@ class AdminController {
                 if (!in_array($file['type'], $allowed)) respond(400, 'Only JPG, PNG, WEBP allowed');
                 if ($file['size'] > 5 * 1024 * 1024) respond(400, 'Max file size is 5MB');
 
-                require_once __DIR__ . '/../services/MinioService.php';
-                $minio = new MinioService();
-                $url   = $minio->upload($file['tmp_name'], $file['name']);
+                // Try MinIO first; fall back to local uploads/products/ if unavailable
+                $storedPath = null;
+                $minioAvailable = file_exists(__DIR__ . '/../vendor/aws');
+                if ($minioAvailable) {
+                    try {
+                        require_once __DIR__ . '/../services/MinioService.php';
+                        $storedPath = (new MinioService())->upload($file['tmp_name'], $file['name']);
+                    } catch (\Throwable $e) {
+                        error_log('MinIO upload failed, falling back to local: ' . $e->getMessage());
+                        $minioAvailable = false;
+                    }
+                }
+                if (!$minioAvailable || !$storedPath) {
+                    $ext      = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+                    $filename = uniqid('img_', true) . '.' . $ext;
+                    $dest     = __DIR__ . '/../uploads/products/' . $filename;
+                    if (!move_uploaded_file($file['tmp_name'], $dest)) respond(500, 'Failed to save image');
+                    $storedPath = 'uploads/products/' . $filename;
+                }
 
                 // First image for this product → make it primary automatically
                 $countStmt = $this->db->prepare('SELECT COUNT(*) FROM product_images WHERE product_id = ?');
@@ -267,8 +320,9 @@ class AdminController {
                 $isPrimary = $countStmt->fetchColumn() == 0 ? 1 : 0;
 
                 $this->db->prepare('INSERT INTO product_images (product_id, image_path, is_primary, sort_order) VALUES (?, ?, ?, 0)')
-                         ->execute([$productId, $url, $isPrimary]);
-                respond(201, ['id' => $this->db->lastInsertId(), 'image_path' => $url, 'is_primary' => $isPrimary]);
+                         ->execute([$productId, $storedPath, $isPrimary]);
+                $insertedId = $this->db->lastInsertId();
+                respond(201, ['id' => $insertedId, 'image_path' => self::imageUrl($storedPath), 'is_primary' => $isPrimary]);
 
             case 'DELETE':
                 if (!$imageId) respond(400, 'Image ID required');
@@ -277,9 +331,19 @@ class AdminController {
                 $img = $stmt->fetch();
                 if (!$img) respond(404, 'Image not found');
 
-                require_once __DIR__ . '/../services/MinioService.php';
-                try { (new MinioService())->delete($img['image_path']); }
-                catch (\Throwable $e) { error_log('MinIO delete: ' . $e->getMessage()); }
+                if (str_starts_with($img['image_path'], 'http')) {
+                    // MinIO URL — delete from object storage
+                    if (file_exists(__DIR__ . '/../vendor/aws')) {
+                        try {
+                            require_once __DIR__ . '/../services/MinioService.php';
+                            (new MinioService())->delete($img['image_path']);
+                        } catch (\Throwable $e) { error_log('MinIO delete: ' . $e->getMessage()); }
+                    }
+                } else {
+                    // Local file — delete from disk
+                    $localPath = __DIR__ . '/../' . ltrim($img['image_path'], '/');
+                    if (file_exists($localPath)) @unlink($localPath);
+                }
 
                 $this->db->prepare('DELETE FROM product_images WHERE id = ?')->execute([$imageId]);
 
@@ -300,6 +364,58 @@ class AdminController {
                 $this->db->prepare('UPDATE product_images SET is_primary = 0 WHERE product_id = ?')->execute([$productId]);
                 $this->db->prepare('UPDATE product_images SET is_primary = 1 WHERE id = ? AND product_id = ?')->execute([$imageId, $productId]);
                 respond(200, ['message' => 'Primary image updated']);
+
+            default: respond(405, 'Method not allowed');
+        }
+    }
+
+    // Product Videos — upload / delete
+    public function productVideos(string $method, string $productId, ?string $videoId): never {
+        switch ($method) {
+            case 'GET':
+                $stmt = $this->db->prepare('SELECT * FROM product_videos WHERE product_id = ? ORDER BY sort_order ASC');
+                $stmt->execute([$productId]);
+                $videos = $stmt->fetchAll();
+                foreach ($videos as &$v) {
+                    $v['video_url'] = self::imageUrl($v['video_path']);
+                }
+                respond(200, $videos);
+
+            case 'POST':
+                if (!isset($_FILES['video'])) respond(400, 'No video file');
+                $file = $_FILES['video'];
+                if ($file['error'] !== UPLOAD_ERR_OK) respond(400, 'Upload error: ' . $file['error']);
+
+                $allowed = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo'];
+                if (!in_array($file['type'], $allowed)) respond(400, 'Only MP4, WEBM, MOV, AVI allowed');
+                if ($file['size'] > 100 * 1024 * 1024) respond(400, 'Max file size is 100MB');
+
+                $ext      = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+                $filename = uniqid('vid_', true) . '.' . $ext;
+                $uploadDir = __DIR__ . '/../uploads/videos/';
+                if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+                $dest = $uploadDir . $filename;
+                if (!move_uploaded_file($file['tmp_name'], $dest)) respond(500, 'Failed to save video');
+                $storedPath = 'uploads/videos/' . $filename;
+                $title = $_POST['title'] ?? null;
+
+                $this->db->prepare('INSERT INTO product_videos (product_id, video_path, title, sort_order) VALUES (?, ?, ?, 0)')
+                         ->execute([$productId, $storedPath, $title]);
+                $insertedId = $this->db->lastInsertId();
+                respond(201, ['id' => $insertedId, 'video_url' => self::imageUrl($storedPath), 'video_path' => $storedPath, 'title' => $title]);
+
+            case 'DELETE':
+                if (!$videoId) respond(400, 'Video ID required');
+                $stmt = $this->db->prepare('SELECT * FROM product_videos WHERE id = ? AND product_id = ?');
+                $stmt->execute([$videoId, $productId]);
+                $vid = $stmt->fetch();
+                if (!$vid) respond(404, 'Video not found');
+
+                $localPath = __DIR__ . '/../' . ltrim($vid['video_path'], '/');
+                if (file_exists($localPath)) @unlink($localPath);
+
+                $this->db->prepare('DELETE FROM product_videos WHERE id = ?')->execute([$videoId]);
+                respond(200, ['message' => 'Video deleted']);
 
             default: respond(405, 'Method not allowed');
         }

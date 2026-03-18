@@ -53,6 +53,18 @@ export const uploadProductImage = (id, file) => {
 export const setPrimaryImage  = (productId, imageId) => adminApi.put(`/admin/products/${productId}/images/${imageId}`)
 export const deleteProductImage = (productId, imageId) => adminApi.delete(`/admin/products/${productId}/images/${imageId}`)
 
+// ── PRODUCT VIDEOS ─────────────────────────
+export const getProductVideos   = (id) => adminApi.get(`/admin/products/${id}/videos`)
+export const uploadProductVideo = (id, file, title = '') => {
+  const fd = new FormData()
+  fd.append('video', file)
+  if (title) fd.append('title', title)
+  return adminApi.post(`/admin/products/${id}/videos`, fd, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+}
+export const deleteProductVideo = (productId, videoId) => adminApi.delete(`/admin/products/${productId}/videos/${videoId}`)
+
 // ── CATEGORY IMAGE ────────────────────────
 export const uploadCategoryImage = (id, file) => {
   const fd = new FormData()

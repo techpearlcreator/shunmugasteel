@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router-dom'
 import { productService } from '../services/productService'
 import { useQuoteStore } from '../store/quoteStore'
@@ -93,6 +93,8 @@ export default function ProductDetail() {
   const [selectedVariant, setSelectedVariant] = useState(null)
   const [quantity, setQuantity] = useState(1)
   const [addedMsg, setAddedMsg] = useState('')
+  const [activeMedia, setActiveMedia] = useState(null) // { type: 'image'|'video', src, id }
+  const videoRef = useRef(null)
 
   // Custom product dimensions
   const [customThick, setCustomThick] = useState('')
@@ -114,6 +116,8 @@ export default function ProductDetail() {
         if (d && d.name) {
           setProduct(d)
           if (d.variants?.length) setSelectedVariant(d.variants[0])
+          const firstImg = d.primary_image || d.images?.[0]?.image_url
+          if (firstImg) setActiveMedia({ type: 'image', src: firstImg, id: 'primary' })
         } else loadFb()
       })
       .catch(loadFb)
@@ -124,6 +128,8 @@ export default function ProductDetail() {
       if (fb) {
         setProduct(fb)
         if (fb.variants?.length) setSelectedVariant(fb.variants[0])
+        const src = cdnImg(fb.image_url || PRODUCT_IMAGES[productSlug] || '')
+        if (src) setActiveMedia({ type: 'image', src, id: 'primary' })
       }
     }
   }, [productSlug])
@@ -217,28 +223,92 @@ export default function ProductDetail() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* Image */}
+        {/* Gallery */}
         <div>
-          <div className="rounded-xl overflow-hidden bg-gray-100 aspect-square flex items-center justify-center">
-            <img
-              src={product.primary_image || product.images?.[0]?.image_url || cdnImg(product.image_url || PRODUCT_IMAGES[productSlug] || '')}
-              alt={product.name}
-              className="w-full h-full object-cover"
-              onError={(e) => { e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><rect fill="%232C3E50" width="600" height="600"/><text fill="%23E67E22" font-size="20" font-family="sans-serif" x="300" y="310" text-anchor="middle">Steel Product</text></svg>' }}
-            />
-          </div>
-          {/* Stock + Brand badges */}
-          <div className="mt-4 flex gap-3 flex-wrap">
-            {product.brand && (
-              <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm font-medium px-3 py-1.5 rounded-lg">
-                Brand: <strong>{product.brand}</strong>
-              </span>
-            )}
-            <span className={`inline-flex items-center text-sm font-medium px-3 py-1.5 rounded-lg ${product.stock_status === 'in_stock' ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>
-              {product.stock_status === 'in_stock' ? '● In Stock' : '● On Order'}
-            </span>
-            {isCustom && <span className="inline-flex items-center text-sm font-medium px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700">Custom / Made to Order</span>}
-          </div>
+          {(() => {
+            const fallbackSrc = cdnImg(product.image_url || PRODUCT_IMAGES[productSlug] || '')
+            const images = product.images?.length
+              ? product.images
+              : (product.primary_image || fallbackSrc)
+                ? [{ id: 'primary', image_url: product.primary_image || fallbackSrc, is_primary: 1 }]
+                : []
+            const videos = product.videos || []
+            const allMedia = [
+              ...images.map((img) => ({ type: 'image', src: img.image_url || img.image_path, id: img.id })),
+              ...videos.map((vid) => ({ type: 'video', src: vid.video_url || vid.video_path, id: vid.id, title: vid.title })),
+            ]
+            const current = activeMedia || allMedia[0]
+
+            return (
+              <div style={{ display: 'flex', gap: 12 }}>
+                {/* Thumbnail strip */}
+                {allMedia.length > 1 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: 72, flexShrink: 0 }}>
+                    {allMedia.map((m) => {
+                      const isActive = current?.id === m.id
+                      return (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => { setActiveMedia(m); if (videoRef.current) videoRef.current.pause() }}
+                          style={{
+                            width: 72, height: 72, borderRadius: 8, overflow: 'hidden', flexShrink: 0,
+                            border: isActive ? '2px solid #E67E22' : '2px solid #e5e7eb',
+                            background: '#f3f4f6', padding: 0, cursor: 'pointer', position: 'relative',
+                          }}
+                        >
+                          {m.type === 'image' ? (
+                            <img src={m.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              onError={(e) => { e.target.style.display = 'none' }} />
+                          ) : (
+                            <>
+                              <video src={m.src} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }} muted />
+                              <span style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, color: '#fff', background: 'rgba(0,0,0,0.35)' }}>▶</span>
+                            </>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+
+                {/* Main viewer */}
+                <div style={{ flex: 1 }}>
+                  <div className="rounded-xl overflow-hidden bg-gray-100" style={{ aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {!current || current.type === 'image' ? (
+                      <img
+                        src={current?.src || fallbackSrc}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><rect fill="%232C3E50" width="600" height="600"/><text fill="%23E67E22" font-size="20" font-family="sans-serif" x="300" y="310" text-anchor="middle">Steel Product</text></svg>' }}
+                      />
+                    ) : (
+                      <video
+                        ref={videoRef}
+                        src={current.src}
+                        controls
+                        className="w-full h-full"
+                        style={{ objectFit: 'contain', background: '#000', maxHeight: '100%' }}
+                      />
+                    )}
+                  </div>
+
+                  {/* Stock + Brand badges */}
+                  <div className="mt-4 flex gap-3 flex-wrap">
+                    {product.brand && (
+                      <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 text-sm font-medium px-3 py-1.5 rounded-lg">
+                        Brand: <strong>{product.brand}</strong>
+                      </span>
+                    )}
+                    <span className={`inline-flex items-center text-sm font-medium px-3 py-1.5 rounded-lg ${product.stock_status === 'in_stock' ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'}`}>
+                      {product.stock_status === 'in_stock' ? '● In Stock' : '● On Order'}
+                    </span>
+                    {isCustom && <span className="inline-flex items-center text-sm font-medium px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700">Custom / Made to Order</span>}
+                  </div>
+                </div>
+              </div>
+            )
+          })()}
         </div>
 
         {/* Info panel */}

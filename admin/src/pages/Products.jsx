@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { getProducts, getProduct, getCategories, createProduct, updateProduct, deleteProduct,
-         getProductImages, uploadProductImage, setPrimaryImage, deleteProductImage } from '../services/adminApi'
+         getProductImages, uploadProductImage, setPrimaryImage, deleteProductImage,
+         getProductVideos, uploadProductVideo, deleteProductVideo } from '../services/adminApi'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 import Modal from '../components/ui/Modal'
@@ -98,10 +99,13 @@ export default function Products() {
   const [rule,      setRule]      = useState(EMPTY_RULE)
   const [images,    setImages]    = useState([])
   const [imgUploading, setImgUploading] = useState(false)
+  const [videos,    setVideos]    = useState([])
+  const [vidUploading, setVidUploading] = useState(false)
   const [error,     setError]     = useState('')
   const [search,    setSearch]    = useState('')
   const [filterCat, setFilterCat] = useState('')
   const fileInputRef = useRef(null)
+  const videoInputRef = useRef(null)
 
   const load = () => {
     setLoading(true)
@@ -126,12 +130,13 @@ export default function Products() {
       stock_status: prod.stock_status, is_featured: prod.is_featured,
       sort_order: prod.sort_order, status: prod.status,
     })
-    setVariants([]); setRule({ ...EMPTY_RULE }); setImages([])
+    setVariants([]); setRule({ ...EMPTY_RULE }); setImages([]); setVideos([])
     try {
       const r = await getProduct(prod.id)
       setVariants(r.data.variants?.length ? r.data.variants : [{ ...EMPTY_VARIANT }])
       setRule(r.data.pricing_rules || { ...EMPTY_RULE })
       setImages(r.data.images || [])
+      setVideos(r.data.videos || [])
     } catch {}
   }
 
@@ -149,6 +154,29 @@ export default function Products() {
       setImgUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
     }
+  }
+
+  const handleVideoUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file || !editing) return
+    setVidUploading(true)
+    try {
+      const r = await uploadProductVideo(editing.id, file)
+      setVideos((prev) => [...prev, r.data])
+    } catch (err) {
+      setError(err.response?.data?.error || 'Video upload failed')
+    } finally {
+      setVidUploading(false)
+      if (videoInputRef.current) videoInputRef.current.value = ''
+    }
+  }
+
+  const handleDeleteVideo = async (videoId) => {
+    if (!editing) return
+    try {
+      await deleteProductVideo(editing.id, videoId)
+      setVideos((prev) => prev.filter((v) => v.id !== videoId))
+    } catch {}
   }
 
   const handleSetPrimary = async (imageId) => {
@@ -526,6 +554,31 @@ export default function Products() {
               </div>
 
               <p style={{ ...S.hint, marginTop: 0 }}>Accepted: JPG, PNG, WEBP · Max 5 MB per image</p>
+
+              {/* ── Videos section ── */}
+              <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: 16, marginTop: 4 }}>
+                <p style={{ fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 8 }}>Videos</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+                  {videos.map((vid) => (
+                    <div key={vid.id} style={{ position: 'relative', width: 110, height: 110, borderRadius: 10, border: '2px solid #E2E8F0', overflow: 'hidden', background: '#0F172A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <video src={vid.video_url} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }} muted />
+                      <span style={{ position: 'absolute', fontSize: 28, color: '#fff', pointerEvents: 'none' }}>▶</span>
+                      {vid.title && (
+                        <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 9, padding: '2px 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{vid.title}</span>
+                      )}
+                      <button type="button" onClick={() => handleDeleteVideo(vid.id)}
+                        style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(220,38,38,0.85)', border: 'none', color: '#fff', fontSize: 14, width: 22, height: 22, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                    </div>
+                  ))}
+                  {/* Upload video tile */}
+                  <label style={{ width: 110, height: 110, borderRadius: 10, border: '2px dashed #CBD5E1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: vidUploading ? 'wait' : 'pointer', color: '#94A3B8', fontSize: 12, gap: 4, background: '#FAFAFA' }}>
+                    <span style={{ fontSize: 28 }}>{vidUploading ? '⏳' : '▶'}</span>
+                    <span>{vidUploading ? 'Uploading…' : 'Add Video'}</span>
+                    <input ref={videoInputRef} type="file" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" style={{ display: 'none' }} onChange={handleVideoUpload} disabled={vidUploading} />
+                  </label>
+                </div>
+                <p style={{ ...S.hint, marginTop: 8 }}>Accepted: MP4, WEBM, MOV, AVI · Max 100 MB per video</p>
+              </div>
             </div>
           )}
 

@@ -144,6 +144,8 @@ elseif ($segments[0] === 'admin') {
         $ctrl->productPricing($method, $id);
     } elseif ($sub === 'products' && $id && $sub2 === 'images') {
         $ctrl->productImages($method, $id, $id2);
+    } elseif ($sub === 'products' && $id && $sub2 === 'videos') {
+        $ctrl->productVideos($method, $id, $id2);
     } else {
         match([$sub]) {
             ['dashboard']  => $ctrl->dashboard(),
