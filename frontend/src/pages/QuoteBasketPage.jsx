@@ -13,6 +13,7 @@ export default function QuoteBasketPage() {
 
   const [deliveryAddress, setDeliveryAddress] = useState({
     name: user?.name || '',
+    email: user?.email || '',
     phone: user?.phone || '',
     address: '',
     city: '',
@@ -153,6 +154,10 @@ export default function QuoteBasketPage() {
                 <input type="tel" value={deliveryAddress.phone} onChange={(e) => setDeliveryAddress({ ...deliveryAddress, phone: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-orange-400" placeholder="+91 XXXXX XXXXX" required />
               </div>
               <div className="sm:col-span-2">
+                <label className="text-xs text-gray-500 block mb-1">Email Address *</label>
+                <input type="email" value={deliveryAddress.email} onChange={(e) => setDeliveryAddress({ ...deliveryAddress, email: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-orange-400" placeholder="you@example.com" required />
+              </div>
+              <div className="sm:col-span-2">
                 <label className="text-xs text-gray-500 block mb-1">Street Address *</label>
                 <input type="text" value={deliveryAddress.address} onChange={(e) => setDeliveryAddress({ ...deliveryAddress, address: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-orange-400" placeholder="Door no, Street, Area" required />
               </div>
@@ -209,7 +214,7 @@ export default function QuoteBasketPage() {
               onClick={handleSubmit}
               disabled={submitting}
               className="w-full py-3 rounded-lg font-semibold text-white transition-all disabled:opacity-60"
-              style={{ background: '#E67E22' }}
+              style={{ background: '#E67E22', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               onMouseOver={(e) => e.currentTarget.style.background = '#d35400'}
               onMouseOut={(e) => e.currentTarget.style.background = '#E67E22'}
             >
