@@ -431,15 +431,15 @@ class AdminController {
 
             case 'POST':
                 $data = input();
-                $stmt = $this->db->prepare('INSERT INTO product_variants (product_id, variant_name, thickness, width, length, grade, unit, price_per_unit, sort_order) VALUES (?,?,?,?,?,?,?,?,?)');
-                $stmt->execute([$productId, $data['variant_name'], $data['thickness'] ?: null, $data['width'] ?: null, $data['length'] ?: null, $data['grade'] ?: null, $data['unit'] ?? 'ton', $data['price_per_unit'] ?? 0, $data['sort_order'] ?? 0]);
+                $stmt = $this->db->prepare('INSERT INTO product_variants (product_id, variant_name, thickness, width, length, grade, brand, unit, price_per_unit, sort_order) VALUES (?,?,?,?,?,?,?,?,?,?)');
+                $stmt->execute([$productId, $data['variant_name'], $data['thickness'] ?: null, $data['width'] ?: null, $data['length'] ?: null, $data['grade'] ?: null, $data['brand'] ?: null, $data['unit'] ?? 'ton', $data['price_per_unit'] ?? 0, $data['sort_order'] ?? 0]);
                 respond(201, ['id' => $this->db->lastInsertId(), 'message' => 'Variant created']);
 
             case 'PUT':
                 if (!$variantId) respond(400, 'Variant ID required');
                 $data = input();
-                $stmt = $this->db->prepare('UPDATE product_variants SET variant_name=?, thickness=?, width=?, length=?, grade=?, unit=?, price_per_unit=?, sort_order=? WHERE id=? AND product_id=?');
-                $stmt->execute([$data['variant_name'], $data['thickness'] ?: null, $data['width'] ?: null, $data['length'] ?: null, $data['grade'] ?: null, $data['unit'] ?? 'ton', $data['price_per_unit'] ?? 0, $data['sort_order'] ?? 0, $variantId, $productId]);
+                $stmt = $this->db->prepare('UPDATE product_variants SET variant_name=?, thickness=?, width=?, length=?, grade=?, brand=?, unit=?, price_per_unit=?, sort_order=? WHERE id=? AND product_id=?');
+                $stmt->execute([$data['variant_name'], $data['thickness'] ?: null, $data['width'] ?: null, $data['length'] ?: null, $data['grade'] ?: null, $data['brand'] ?: null, $data['unit'] ?? 'ton', $data['price_per_unit'] ?? 0, $data['sort_order'] ?? 0, $variantId, $productId]);
                 respond(200, ['message' => 'Variant updated']);
 
             case 'DELETE':
