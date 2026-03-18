@@ -132,6 +132,7 @@ CREATE TABLE IF NOT EXISTS product_variants (
   width VARCHAR(20),
   length VARCHAR(20),
   grade VARCHAR(50) COMMENT 'IS 2062 E250, IS 513, etc.',
+  brand VARCHAR(100) DEFAULT NULL COMMENT 'e.g. SAIL, JSW, AMNS India',
   price_per_unit DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   unit VARCHAR(20) DEFAULT 'ton' COMMENT 'ton, kg, sheet, meter, sqft',
   min_order_qty DECIMAL(10,2) DEFAULT 1,

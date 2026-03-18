@@ -93,6 +93,7 @@ export default function ProductDetail() {
   const [selectedVariant, setSelectedVariant] = useState(null)
   const [quantity, setQuantity] = useState(1)
   const [addedMsg, setAddedMsg] = useState('')
+  const [selectedBrand, setSelectedBrand] = useState(null)
   const [activeMedia, setActiveMedia] = useState(null) // { type: 'image'|'video', src, id }
   const videoRef = useRef(null)
 
@@ -336,26 +337,71 @@ export default function ProductDetail() {
             <div className="mt-6 p-5 bg-gray-50 rounded-xl border border-gray-200">
               <h3 className="font-semibold text-gray-700 mb-3">Select Variant & Quantity</h3>
 
-              {product.variants?.length > 0 && (
-                <div className="mb-4">
-                  <label className="text-sm text-gray-500 block mb-1">Dimension / Size</label>
-                  <select
-                    value={selectedVariant?.id || ''}
-                    onChange={(e) => {
-                      const v = product.variants.find((v) => v.id === parseInt(e.target.value))
-                      setSelectedVariant(v)
-                    }}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-orange-400"
-                  >
-                    {product.variants.map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {v.variant_name || v.name}
-                        {(v.price_per_unit || v.price) > 0 ? ` — ₹${Number(v.price_per_unit || v.price).toLocaleString('en-IN')}/${v.unit || 'MT'}` : ' — Price on Request'}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
+              {product.variants?.length > 0 && (() => {
+                // Collect unique brands that have variants
+                const brands = [...new Set(
+                  product.variants.map((v) => v.brand).filter(Boolean)
+                )]
+                const hasBrands = brands.length > 0
+                const activeBrand = hasBrands ? (selectedBrand || brands[0]) : null
+                const filteredVariants = hasBrands
+                  ? product.variants.filter((v) => v.brand === activeBrand)
+                  : product.variants
+
+                return (
+                  <>
+                    {/* Brand chips */}
+                    {hasBrands && (
+                      <div className="mb-4">
+                        <label className="text-sm text-gray-500 block mb-2">Brand</label>
+                        <div className="flex flex-wrap gap-2">
+                          {brands.map((b) => {
+                            const isActive = (selectedBrand || brands[0]) === b
+                            return (
+                              <button
+                                key={b}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedBrand(b)
+                                  const first = product.variants.find((v) => v.brand === b)
+                                  setSelectedVariant(first || null)
+                                }}
+                                style={{
+                                  padding: '6px 16px', borderRadius: 20, fontSize: 13, fontWeight: 600,
+                                  cursor: 'pointer', transition: 'all 0.15s',
+                                  background: isActive ? '#E67E22' : '#fff',
+                                  color: isActive ? '#fff' : '#374151',
+                                  border: isActive ? '2px solid #E67E22' : '2px solid #d1d5db',
+                                }}
+                              >{b}</button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Dimension / Size dropdown filtered by brand */}
+                    <div className="mb-4">
+                      <label className="text-sm text-gray-500 block mb-1">Dimension / Size</label>
+                      <select
+                        value={selectedVariant?.id || ''}
+                        onChange={(e) => {
+                          const v = filteredVariants.find((v) => v.id === parseInt(e.target.value))
+                          setSelectedVariant(v)
+                        }}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-orange-400"
+                      >
+                        {filteredVariants.map((v) => (
+                          <option key={v.id} value={v.id}>
+                            {v.variant_name || v.name}
+                            {(v.price_per_unit || v.price) > 0 ? ` — ₹${Number(v.price_per_unit || v.price).toLocaleString('en-IN')}/${v.unit || 'MT'}` : ' — Price on Request'}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </>
+                )
+              })()}
 
               <div className="mb-4">
                 <label className="text-sm text-gray-500 block mb-1">Quantity (MT)</label>

@@ -17,7 +17,7 @@ const EMPTY = {
   product_type: 'standard', brand: '', stock_status: 'in_stock',
   is_featured: 0, sort_order: 0, status: 'active',
 }
-const EMPTY_VARIANT = { variant_name: '', thickness: '', width: '', length: '', grade: '', unit: 'ton', price_per_unit: '', sort_order: 0 }
+const EMPTY_VARIANT = { variant_name: '', thickness: '', width: '', length: '', grade: '', brand: '', unit: 'ton', price_per_unit: '', sort_order: 0 }
 const EMPTY_RULE    = { primary_pricing_unit: 'kg', price_per_kg: '', price_per_ton: '', price_per_meter: '', price_per_sqft: '', price_per_sheet: '' }
 const BRANDS  = ['', 'SAIL', 'AMNS India', 'JSW Steel', 'Evonith', 'Multiple']
 const UNITS   = ['ton', 'kg', 'meter', 'sqft', 'sheet', 'piece']
@@ -476,6 +476,12 @@ export default function Products() {
                       onChange={(e) => setVariant(i, 'variant_name', e.target.value)} />
                     <FormInput label="Grade" placeholder="e.g. IS2062" value={v.grade}
                       onChange={(e) => setVariant(i, 'grade', e.target.value)} />
+                  </div>
+                  <div style={S.formGrid2}>
+                    <FormSelect label="Brand" value={v.brand || ''}
+                      onChange={(e) => setVariant(i, 'brand', e.target.value)}>
+                      {BRANDS.map((b) => <option key={b} value={b}>{b || '— No specific brand —'}</option>)}
+                    </FormSelect>
                   </div>
                   <div style={S.formGrid4}>
                     <FormInput label="Thickness (mm)" type="number" value={v.thickness}
