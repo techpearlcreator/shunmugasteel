@@ -38,12 +38,10 @@ function Select({ value, onChange, children }) {
 }
 
 const TABS = [
-  { k: 'general',    label: 'Company',  icon: '🏢' },
-  { k: 'smtp',       label: 'Email',    icon: '📧' },
-  { k: 'payment',    label: 'Payment',  icon: '💳' },
-  { k: 'quote',      label: 'Quotes',   icon: '📄' },
+  { k: 'general',    label: 'Company',     icon: '🏢' },
+  { k: 'quote',      label: 'Quotes',      icon: '📄' },
   { k: 'hurry_deal', label: 'Deal Banner', icon: '🔥' },
-  { k: 'tax',        label: 'GST & Tax', icon: '🧾' },
+  { k: 'tax',        label: 'GST & Tax',   icon: '🧾' },
 ]
 
 export default function Settings() {
@@ -99,7 +97,7 @@ export default function Settings() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#0F172A' }}>Settings</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#94A3B8' }}>Configure company, email, payment and more</p>
+          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#94A3B8' }}>Configure company, quotes, deals and tax</p>
         </div>
         <button onClick={handleSave} disabled={saving} style={{
           display: 'flex', alignItems: 'center', gap: 8,
@@ -170,43 +168,6 @@ export default function Settings() {
               <div style={gridStyle}>
                 <Field label="City"><Input value={company.company_city||''} onChange={(e)=>set('company_city',e.target.value)} /></Field>
                 <Field label="Pincode"><Input value={company.company_pincode||''} onChange={(e)=>set('company_pincode',e.target.value)} /></Field>
-              </div>
-            </div>
-          )}
-
-          {/* SMTP */}
-          {tab === 'smtp' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <div style={{ padding: '12px 16px', background: '#F0F9FF', borderRadius: 10, border: '1px solid #BAE6FD', fontSize: 13, color: '#0369A1' }}>
-                💡 Use Gmail App Password (not your login password). Enable 2FA first in Google account.
-              </div>
-              <div style={gridStyle}>
-                <Field label="SMTP Host"><Input value={company.smtp_host||''} onChange={(e)=>set('smtp_host',e.target.value)} placeholder="smtp.gmail.com" /></Field>
-                <Field label="SMTP Port"><Input value={company.smtp_port||''} onChange={(e)=>set('smtp_port',e.target.value)} placeholder="587" /></Field>
-                <Field label="Username / Email"><Input value={company.smtp_username||''} onChange={(e)=>set('smtp_username',e.target.value)} /></Field>
-                <Field label="App Password"><Input type="password" value={company.smtp_password||''} onChange={(e)=>set('smtp_password',e.target.value)} /></Field>
-                <Field label="From Name"><Input value={company.smtp_from_name||''} onChange={(e)=>set('smtp_from_name',e.target.value)} placeholder="Shunmuga Steel Traders" /></Field>
-                <Field label="From Email"><Input value={company.smtp_from_email||''} onChange={(e)=>set('smtp_from_email',e.target.value)} /></Field>
-              </div>
-            </div>
-          )}
-
-          {/* PAYMENT */}
-          {tab === 'payment' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <div style={{ padding: '12px 16px', background: '#FFF7ED', borderRadius: 10, border: '1px solid #FED7AA', fontSize: 13, color: '#C2410C' }}>
-                ⚠️ Switch to <strong>Live Mode</strong> only after thorough testing in Test Mode.
-              </div>
-              <div style={gridStyle}>
-                <Field label="Gateway Mode">
-                  <Select value={company.razorpay_mode||'test'} onChange={(e)=>set('razorpay_mode',e.target.value)}>
-                    <option value="test">🧪 Test Mode</option>
-                    <option value="live">🟢 Live Mode</option>
-                  </Select>
-                </Field>
-                <div />
-                <Field label="Razorpay Key ID"><Input value={company.razorpay_key_id||''} onChange={(e)=>set('razorpay_key_id',e.target.value)} placeholder="rzp_test_xxxxxxxxxxxx" /></Field>
-                <Field label="Razorpay Key Secret"><Input type="password" value={company.razorpay_key_secret||''} onChange={(e)=>set('razorpay_key_secret',e.target.value)} /></Field>
               </div>
             </div>
           )}

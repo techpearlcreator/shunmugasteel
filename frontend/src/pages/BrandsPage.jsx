@@ -52,24 +52,24 @@ export default function BrandsPage() {
   return (
     <div>
       {/* Header banner */}
-      <div className="relative py-16 overflow-hidden" style={{ background: 'linear-gradient(135deg, #1A252F 0%, #2C3E50 100%)' }}>
+      <div className="relative py-10 md:py-16 overflow-hidden" style={{ background: 'linear-gradient(135deg, #1A252F 0%, #2C3E50 100%)' }}>
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #E67E22 0, #E67E22 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }} />
         <div className="relative max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl font-bold text-white">Our Brand Partners</h1>
-          <p className="mt-3 text-gray-300 max-w-2xl mx-auto">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Our Brand Partners</h1>
+          <p className="mt-3 text-sm sm:text-base text-gray-300 max-w-2xl mx-auto">
             Shunmuga Steel is an authorized dealer for India's leading steel manufacturers.
             Every product we supply is genuine, BIS certified and backed by manufacturer warranty.
           </p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-16">
+      <div className="max-w-7xl mx-auto px-4 py-10 md:py-16">
         {BRANDS.map((brand, i) => (
           <div key={brand.key}>
-            <div className={`flex flex-col ${i % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-12 items-start py-12`}>
+            <div className={`flex flex-col ${i % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-6 lg:gap-12 items-start py-8 sm:py-12 md:py-16`}>
             {/* Logo card */}
             <div className="w-full lg:w-72 flex-shrink-0">
-              <div className="bg-white border border-gray-200 rounded-2xl p-6 flex flex-col items-center text-center shadow-sm sticky top-4">
+              <div className="bg-white border border-gray-200 rounded-2xl p-6 flex flex-col items-center text-center shadow-sm lg:sticky lg:top-4">
                 <img
                   src={cdnImg(BRAND_LOGOS[brand.key])}
                   alt={brand.name}
@@ -95,7 +95,7 @@ export default function BrandsPage() {
               <div className="inline-block text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full mb-3" style={{ background: brand.color + '15', color: brand.color }}>
                 Authorized Dealer
               </div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-3">{brand.full}</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">{brand.full}</h3>
               <p className="text-gray-600 leading-relaxed mb-5">{brand.description}</p>
 
               <h4 className="font-semibold text-gray-700 mb-3">Products Available from {brand.name}</h4>
@@ -122,9 +122,9 @@ export default function BrandsPage() {
       </div>
 
       {/* CTA */}
-      <div className="py-16" style={{ background: '#F8F9FA' }}>
+      <div className="py-10 md:py-16" style={{ background: '#F8F9FA' }}>
         <div className="max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-2xl font-bold text-gray-800">Need a specific brand or grade?</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Need a specific brand or grade?</h2>
           <p className="mt-3 text-gray-500">Our team can source any grade from SAIL, AMNS India, JSW Steel or Evonith. Contact us for custom requirements.</p>
           <div className="mt-8 flex justify-center gap-4 flex-wrap">
             <Link to="/contact" className="inline-block px-6 py-3 rounded-lg font-semibold text-white" style={{ background: '#E67E22' }}>Contact Our Team</Link>

@@ -80,14 +80,26 @@ export default function Categories() {
 
   const handleDelete = async () => {
     setDeleting(true)
-    try { await deleteCategory(confirm.id); setConfirm(null); load() }
-    finally { setDeleting(false) }
+    try {
+      await deleteCategory(confirm.id)
+      // Remove deleted category and its children from state directly
+      setCats((prev) => prev.filter((c) => c.id !== confirm.id && c.parent_id !== confirm.id))
+      setConfirm(null)
+    } catch {
+      setConfirm(null)
+    } finally { setDeleting(false) }
   }
 
   const toggleStatus = async (cat) => {
     const newStatus = cat.status === 'active' ? 'inactive' : 'active'
-    await updateCategory(cat.id, { ...cat, status: newStatus })
+    // Optimistic update
     setCats((prev) => prev.map((c) => c.id === cat.id ? { ...c, status: newStatus } : c))
+    try {
+      await updateCategory(cat.id, { ...cat, status: newStatus })
+    } catch {
+      // Rollback on failure
+      setCats((prev) => prev.map((c) => c.id === cat.id ? { ...c, status: cat.status } : c))
+    }
   }
 
   const tree = parents.flatMap((p) => [p, ...cats.filter((c) => c.parent_id == p.id)])

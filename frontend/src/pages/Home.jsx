@@ -1,16 +1,16 @@
-import { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, EffectFade, Pagination, Navigation } from 'swiper/modules'
 import { useQuoteStore } from '../store/quoteStore'
 
 /* ─── CDN image helper ─── */
-const CDN = (f) => `/@fs/C:/My%20Web%20Sites/SHUNMUGAMSTEEL/cdn2.zohoecommerce.com/${f}`
+const CDN = (f) => `/cdn/${f}`
 
 /* ─── Countdown hook ─── */
 function useCountdown(targetDate) {
-  const calc = () => {
-    const diff = Math.max(0, targetDate - Date.now())
+  const calc = (target) => {
+    const diff = Math.max(0, target - Date.now())
     return {
       days:  Math.floor(diff / 86400000),
       hours: Math.floor((diff % 86400000) / 3600000),
@@ -18,11 +18,14 @@ function useCountdown(targetDate) {
       secs:  Math.floor((diff % 60000) / 1000),
     }
   }
-  const [time, setTime] = useState(calc)
+  const [time, setTime] = useState({ days: 0, hours: 0, mins: 0, secs: 0 })
   useEffect(() => {
-    const id = setInterval(() => setTime(calc()), 1000)
+    // targetDate=0 means no active deal — skip interval entirely
+    if (!targetDate) return
+    setTime(calc(targetDate))
+    const id = setInterval(() => setTime(calc(targetDate)), 1000)
     return () => clearInterval(id)
-  }, [])
+  }, [targetDate])
   return time
 }
 
@@ -111,8 +114,8 @@ const FLAT_PRODUCTS = [
   { id: 4, slug: 'gc-sheets', name: 'GC Sheet – Galv. Corrugated 0.45mm', image: CDN('galvanized-corrugated-sheets7d36.jpg'), badge: null, priceNote: null },
   { id: 5, slug: 'ppgl-colour-coils', name: 'PPGL Colour Coil – Pre-Painted Steel', image: CDN('Color-Coated-Coilsb58b.jpg'), badge: null, priceNote: 'Bulk Rate Available' },
   { id: 6, slug: 'cr-slitted-coil', name: 'GC Sheet – Galv. Corrugated 0.45mm', image: CDN('0-25mm-cold-rolled-coil-1000x1000cf88.jpg'), badge: 'NEW', priceNote: null },
-  { id: 7, slug: 'decking-sheets', name: 'Galvalume Decking Sheet', image: CDN('galvanized-steel-sheets47fe.jpg'), badge: null, priceNote: 'Custom Sizes' },
-  { id: 8, slug: 'puf-panels', name: 'PUF Panel – 40mm Insulated', image: CDN('puf-panel-500x5003e3a.jpg'), badge: null, priceNote: 'Custom Cut' },
+  { id: 7, slug: 'decking-sheets', name: 'Galvalume Decking Sheet', image: CDN('decking-sheets-17e37.jpg'), badge: null, priceNote: 'Custom Sizes' },
+  { id: 8, slug: 'puf-panels', name: 'PUF Panel – 40mm Insulated', image: CDN('PUF-Panels8be3.png'), badge: null, priceNote: 'Custom Cut' },
 ]
 
 const ROOFING_PRODUCTS = [
@@ -122,12 +125,12 @@ const ROOFING_PRODUCTS = [
   { id: 9, slug: 'polycarbonate-sheets', name: 'GC Sheet – Galv. Corrugated 0.45mm', image: CDN('0-25mm-cold-rolled-coil-1000x1000cf88.jpg'), badge: 'NEW', priceNote: null },
   { id: 5, slug: 'ppgl-colour-coils', name: 'PPGL Colour Coil – Pre-Painted Steel', image: CDN('Color-Coated-Coilsb58b.jpg'), badge: null, priceNote: 'Bulk Rate Available' },
   { id: 10, slug: 'colour-coated-coils', name: 'Colour Coated Coil – PPGL', image: CDN('Color-Coated-Coilsb58b.jpg'), badge: null, priceNote: 'Min. Order: 1 MT' },
-  { id: 7, slug: 'decking-sheets', name: 'Galvalume Decking Sheet', image: CDN('galvanized-steel-sheets47fe.jpg'), badge: null, priceNote: 'Custom Sizes' },
-  { id: 8, slug: 'puf-panels', name: 'PUF Panel – 40mm Insulated', image: CDN('puf-panel-500x5003e3a.jpg'), badge: null, priceNote: 'Custom Cut' },
+  { id: 7, slug: 'decking-sheets', name: 'Galvalume Decking Sheet', image: CDN('decking-sheets-17e37.jpg'), badge: null, priceNote: 'Custom Sizes' },
+  { id: 8, slug: 'puf-panels', name: 'PUF Panel – 40mm Insulated', image: CDN('PUF-Panels8be3.png'), badge: null, priceNote: 'Custom Cut' },
 ]
 
 const ACCESSORIES_PRODUCTS = [
-  { id: 7, slug: 'decking-sheets', name: 'Galvalume Decking Sheet', image: CDN('galvanized-steel-sheets47fe.jpg'), badge: null, priceNote: 'Custom Sizes' },
+  { id: 7, slug: 'decking-sheets', name: 'Galvalume Decking Sheet', image: CDN('decking-sheets-17e37.jpg'), badge: null, priceNote: 'Custom Sizes' },
   { id: 4, slug: 'gc-sheets', name: 'GC Sheet – Galv. Corrugated 0.45mm', image: CDN('galvanized-corrugated-sheets7d36.jpg'), badge: null, priceNote: null },
   { id: 1, slug: 'hr-coils-sheets', name: 'HR Coil IS 2062 – Hot Rolled Pickled', image: CDN('images/SST-CR-Coils-2ec0d.png'), badge: null, priceNote: 'Bulk Rate Available' },
   { id: 9, slug: 'polycarbonate-sheets', name: 'GC Sheet – Galv. Corrugated 0.45mm', image: CDN('0-25mm-cold-rolled-coil-1000x1000cf88.jpg'), badge: 'NEW', priceNote: null },
@@ -279,7 +282,8 @@ export default function Home() {
       .catch(() => {})
   }, [])
 
-  const dealTarget = deal ? new Date(deal.end_at).getTime() : Date.now()
+  // Use 0 when no deal — stable across renders, avoids Date.now() changing every render
+  const dealTarget = deal ? new Date(deal.end_at).getTime() : 0
   const countdown  = useCountdown(dealTarget)
 
   const tabProducts = TAB_PRODUCTS[activeTab] || FLAT_PRODUCTS
@@ -321,7 +325,7 @@ export default function Home() {
                       src={slide.image}
                       alt={slide.title}
                       className="lazyload scale-item scale-item-1"
-                      style={{ width: '100%', height: '560px', objectFit: 'cover' }}
+                      style={{ width: '100%', height: 'clamp(260px, 48vw, 560px)', objectFit: 'cover' }}
                     />
                   </div>
                   <div className="sld_content type-4">
@@ -540,20 +544,20 @@ export default function Home() {
                 <h2 className="text-white mb-8">{deal.title || 'Hurry! Deals On'}</h2>
                 <p className="text-white text-body-1">{deal.subtitle || 'Special pricing for limited time only.'}</p>
                 {deal.product_slug && (
-                  <Link to={`/product/${deal.product_slug}`} className="tf-btn btn-white animate-btn animate-dark" style={{ marginTop: '12px', display: 'inline-block' }}>
+                  <Link to={`/product/${deal.product_slug}`} className="tf-btn btn-white animate-btn animate-dark" style={{ marginTop: '12px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                     View Deal &rarr;
                   </Link>
                 )}
               </div>
               <div className="countdown-v01 text-white" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {[['Days', countdown.days], ['Hours', countdown.hours], ['Mins', countdown.mins], ['Secs', countdown.secs]].map(([label, val], i, arr) => (
-                  <>
-                    <div key={label} className="cd-item text-center">
+                  <React.Fragment key={label}>
+                    <div className="cd-item text-center">
                       <div className="number h2 text-white" style={{ lineHeight: 1, minWidth: '2ch' }}>{String(val).padStart(2, '0')}</div>
                       <div className="text-caption-01 cl-text-3 text-uppercase">{label}</div>
                     </div>
                     {i < arr.length - 1 && <div className="h2 text-white" style={{ lineHeight: 1, paddingBottom: '12px' }}>:</div>}
-                  </>
+                  </React.Fragment>
                 ))}
               </div>
             </div>
@@ -611,7 +615,7 @@ export default function Home() {
                   }} />
                   {/* PUF Panels — right side near the white insulated panels */}
                   <LookbookPin top="38%" left="85%" dropstart={true} product={{
-                    slug: 'puf-panels', name: 'PUF Panel – 40mm Insulated', img: CDN('puf-panel-500x5003e3a.jpg'),
+                    slug: 'puf-panels', name: 'PUF Panel – 40mm Insulated', img: CDN('PUF-Panels8be3.png'),
                     price: 'Price on Request', note: 'Custom Cut Available',
                   }} />
                 </div>

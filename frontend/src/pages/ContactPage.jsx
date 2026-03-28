@@ -40,18 +40,18 @@ export default function ContactPage() {
   return (
     <div>
       {/* Header */}
-      <div className="relative py-16" style={{ background: 'linear-gradient(135deg, #1A252F 0%, #2C3E50 100%)' }}>
+      <div className="relative py-10 md:py-16" style={{ background: 'linear-gradient(135deg, #1A252F 0%, #2C3E50 100%)' }}>
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl font-bold text-white">Contact Us</h1>
-          <p className="mt-3 text-gray-300">We respond within 2 hours on working days. Bulk enquiries always welcome.</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Contact Us</h1>
+          <p className="mt-3 text-sm sm:text-base text-gray-300">We respond within 2 hours on working days. Bulk enquiries always welcome.</p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-16">
+      <div className="max-w-7xl mx-auto px-4 py-8 md:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
 
           {/* Contact info */}
-          <div className="space-y-6">
+          <div className="space-y-8">
             {OFFICES.map((office) => (
               <div key={office.city} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
                 <h3 className="font-bold text-gray-800 text-lg mb-4">{office.city} Office</h3>
@@ -95,7 +95,7 @@ export default function ContactPage() {
 
           {/* Contact form */}
           <div>
-            <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
+            <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-8 shadow-sm">
               <h2 className="text-xl font-bold text-gray-800 mb-6">Send us a Message</h2>
 
               {submitted ? (
@@ -149,7 +149,7 @@ export default function ContactPage() {
                   </div>
                   <button type="submit" disabled={loading}
                     className="w-full py-3 rounded-xl font-semibold text-white text-sm transition-all disabled:opacity-60"
-                    style={{ background: '#E67E22' }}
+                    style={{ background: '#E67E22', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                     onMouseOver={(e) => e.currentTarget.style.background = '#d35400'}
                     onMouseOut={(e) => e.currentTarget.style.background = '#E67E22'}
                   >

@@ -204,17 +204,17 @@ export default function ProductDetail() {
   const stdGst = (stdTotal * gst) / 100
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10">
+    <div className="max-w-7xl mx-auto px-4 py-6 md:py-10">
       {/* Back button + Breadcrumb */}
       <div className="mb-6">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/')}
           className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-3 transition-colors"
           style={{ background: 'none', border: '1px solid #e5e7eb', borderRadius: '6px', padding: '6px 12px', cursor: 'pointer' }}
         >
           &#8592; Back
         </button>
-        <nav className="text-sm text-gray-400">
+        <nav className="text-sm text-gray-400 flex flex-wrap items-center gap-1">
           <Link to="/" className="hover:text-orange-400">Home</Link>
           <span className="mx-2">&#8250;</span>
           <Link to={'/products/' + (product.category_slug || 'flat-products')} className="hover:text-orange-400">{product.category_name || 'Products'}</Link>
@@ -241,38 +241,7 @@ export default function ProductDetail() {
             const current = activeMedia || allMedia[0]
 
             return (
-              <div style={{ display: 'flex', gap: 12 }}>
-                {/* Thumbnail strip */}
-                {allMedia.length > 1 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: 72, flexShrink: 0 }}>
-                    {allMedia.map((m) => {
-                      const isActive = current?.id === m.id
-                      return (
-                        <button
-                          key={m.id}
-                          type="button"
-                          onClick={() => { setActiveMedia(m); if (videoRef.current) videoRef.current.pause() }}
-                          style={{
-                            width: 72, height: 72, borderRadius: 8, overflow: 'hidden', flexShrink: 0,
-                            border: isActive ? '2px solid #E67E22' : '2px solid #e5e7eb',
-                            background: '#f3f4f6', padding: 0, cursor: 'pointer', position: 'relative',
-                          }}
-                        >
-                          {m.type === 'image' ? (
-                            <img src={m.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                              onError={(e) => { e.target.style.display = 'none' }} />
-                          ) : (
-                            <>
-                              <video src={m.src} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }} muted />
-                              <span style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, color: '#fff', background: 'rgba(0,0,0,0.35)' }}>▶</span>
-                            </>
-                          )}
-                        </button>
-                      )
-                    })}
-                  </div>
-                )}
-
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {/* Main viewer */}
                 <div style={{ flex: 1 }}>
                   <div className="rounded-xl overflow-hidden bg-gray-100" style={{ aspectRatio: '1/1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -307,6 +276,38 @@ export default function ProductDetail() {
                     {isCustom && <span className="inline-flex items-center text-sm font-medium px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700">Custom / Made to Order</span>}
                   </div>
                 </div>
+
+                {/* Thumbnail strip — horizontal on all screens */}
+                {allMedia.length > 1 && (
+                  <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                    {allMedia.map((m) => {
+                      const isActive = current?.id === m.id
+                      return (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => { setActiveMedia(m); if (videoRef.current) videoRef.current.pause() }}
+                          style={{
+                            width: 72, height: 72, borderRadius: 8, overflow: 'hidden', flexShrink: 0,
+                            border: isActive ? '2px solid #E67E22' : '2px solid #e5e7eb',
+                            background: '#f3f4f6', padding: 0, cursor: 'pointer', position: 'relative',
+                          }}
+                        >
+                          {m.type === 'image' ? (
+                            <img src={m.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              onError={(e) => { e.target.style.display = 'none' }} />
+                          ) : (
+                            <>
+                              <video src={m.src} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }} muted />
+                              <span style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, color: '#fff', background: 'rgba(0,0,0,0.35)' }}>▶</span>
+                            </>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+
               </div>
             )
           })()}
@@ -324,7 +325,7 @@ export default function ProductDetail() {
               <div className="rounded-lg border border-gray-200 overflow-hidden">
                 {product.specs.map((s, i) => (
                   <div key={i} className={`flex text-sm ${i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
-                    <div className="w-40 px-4 py-2.5 font-medium text-gray-500 border-r border-gray-200">{s.spec_name || s.label}</div>
+                    <div className="w-28 sm:w-40 px-3 sm:px-4 py-2.5 font-medium text-gray-500 border-r border-gray-200 flex-shrink-0">{s.spec_name || s.label}</div>
                     <div className="flex-1 px-4 py-2.5 text-gray-800">{s.spec_value || s.value}</div>
                   </div>
                 ))}
@@ -472,7 +473,7 @@ export default function ProductDetail() {
                 </div>
               </div>
 
-              <button onClick={handleCalculate} disabled={calculating || !customThick || !customWidth || !customLength || !customQty} className="w-full py-2 rounded-lg text-sm font-semibold text-white mb-3 disabled:opacity-50" style={{ background: '#2C3E50' }}>
+              <button onClick={handleCalculate} disabled={calculating || !customThick || !customWidth || !customLength || !customQty} className="w-full py-2 rounded-lg text-sm font-semibold text-white mb-3 disabled:opacity-50" style={{ background: '#2C3E50', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {calculating ? 'Calculating...' : 'Calculate Weight / Price'}
               </button>
 

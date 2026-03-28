@@ -1,7 +1,6 @@
-// CDN base URL — serves product images from local SHUNMUGAMSTEEL directory
-// Vite dev server serves files outside project root via /@fs/ with server.fs.allow configured
-export const CDN = '/@fs/C:/My%20Web%20Sites/SHUNMUGAMSTEEL/cdn2.zohoecommerce.com'
-export const LOGO_PATH = '/@fs/C:/My%20Web%20Sites/SHUNMUGAMSTEEL/www.shunmugasteel.com/logo/shunmuga-steel-logo.png'
+// CDN base URL — images served from public/cdn/ (works in both dev and production)
+export const CDN = '/cdn'
+export const LOGO_PATH = '/logo/shunmuga-steel-logo.png'
 
 export const cdnImg = (filename) => `${CDN}/${filename}`
 
@@ -11,7 +10,7 @@ export const PRODUCT_IMAGES = {
   'hr-sheets': 'hot-rolled-coils-sheets-bannerc5c5.jpg',
   'cr-coils': 'cold-rolled-steel072e.jpg',
   'cr-sheets': 'cold-rolled-steel-12ba9.jpg',
-  'gp-sheets': 'galvanized-steel-sheets47fe.jpg',
+  'gp-sheets': 'galvanized-steel-sheets47fe.png',
   'gp-coils': 'gpsheetcoilc6bd.jpg',
   'gc-sheets': 'galvanized-corrugated-sheets7d36.jpg',
   'ppgl-colour-coils': 'Color-Coated-Coilsb58b.jpg',
@@ -19,8 +18,8 @@ export const PRODUCT_IMAGES = {
   'gp-slitted-coil': 'gp-slit-coil-952cf2f.jpg',
   'cr-slitted-coil': '0-25mm-cold-rolled-coil-1000x1000cf88.jpg',
   'decking-sheets': 'decking-sheets-17e37.jpg',
-  'puf-panels': 'PUF Panels8be3.png',
-  'upvc-sheets': 'UPVC Sheet46e3.png',
+  'puf-panels': 'PUF-Panels8be3.png',
+  'upvc-sheets': 'UPVC-Sheet46e3.png',
   'polycarbonate-sheets': 'polycarbonate-sheets-1b014.jpg',
   'purlin': 'purlinc517.jpg',
   'roofing-screws': 'screws1580.jpg',

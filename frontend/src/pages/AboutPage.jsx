@@ -21,13 +21,13 @@ export default function AboutPage() {
   return (
     <div>
       {/* Hero */}
-      <div className="relative py-20 overflow-hidden" style={{ background: 'linear-gradient(135deg, #1A252F 0%, #2C3E50 100%)' }}>
+      <div className="relative py-12 md:py-20 overflow-hidden" style={{ background: 'linear-gradient(135deg, #1A252F 0%, #2C3E50 100%)' }}>
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #E67E22 0, #E67E22 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }} />
         <div className="relative max-w-5xl mx-auto px-4 text-center">
           <div className="inline-block bg-orange-500 bg-opacity-20 border border-orange-500 border-opacity-30 rounded-full px-4 py-1.5 mb-5">
             <span className="text-white text-sm font-medium">Est. 1976 — Tamil Nadu</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
             48 Years of Steel Excellence
           </h1>
           <p className="mt-4 text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
@@ -38,9 +38,9 @@ export default function AboutPage() {
       </div>
 
       {/* Story */}
-      <section className="py-16 bg-white">
+      <section className="py-10 md:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
             <div>
               <h2 className="text-3xl font-bold text-gray-800 mb-5">Our Story</h2>
               <div className="space-y-4 text-gray-600 leading-relaxed">
@@ -118,6 +118,7 @@ export default function AboutPage() {
                   <div className="md:w-1/2 flex flex-col items-start md:items-end">
                     {i % 2 === 0 ? (
                       <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm md:mr-8 w-full">
+                        <div className="text-lg font-bold mb-1 md:hidden" style={{ color: '#E67E22' }}>{m.year}</div>
                         <h3 className="font-bold text-gray-800">{m.title}</h3>
                         <p className="text-sm text-gray-500 mt-1">{m.desc}</p>
                       </div>
@@ -152,7 +153,7 @@ export default function AboutPage() {
       <section className="py-16" style={{ background: '#F8F9FA' }}>
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-8">Our Authorized Brand Partners</h2>
-          <div className="flex flex-wrap justify-center gap-8 items-center">
+          <div className="flex flex-wrap justify-center gap-6 sm:gap-10 md:gap-12 items-center">
             {Object.entries(BRAND_LOGOS).map(([key, file]) => (
               <img key={key} src={cdnImg(file)} alt={key} className="h-12 object-contain grayscale hover:grayscale-0 transition-all" onError={(e) => { e.target.style.display = 'none' }} />
             ))}

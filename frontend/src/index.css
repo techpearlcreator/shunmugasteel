@@ -2,6 +2,10 @@
 @import "tailwindcss/theme";
 @import "tailwindcss/utilities";
 
+/* ── Prevent horizontal scroll on all screens ── */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: hidden; max-width: 100%; }
+
 /* ── Override Amerce primary color → Shunmuga Steel orange ── */
 :root {
   --primary: #E67E22;
@@ -72,4 +76,116 @@
 .mobile-menu-backdrop {
   flex: 1;
   background: rgba(0,0,0,0.5);
+}
+
+/* ════════════════════════════════════════════════════
+   RESPONSIVE — MOBILE-FIRST
+   Breakpoints: 320 · 480 · 768 · 1024 · 1440 · 2560
+   ════════════════════════════════════════════════════ */
+
+/* ── All images responsive by default ── */
+img { max-width: 100%; height: auto; }
+
+/* ── Touch targets: minimum 44 × 44px ── */
+.tf-btn, .btn-action, .nav-icon-item,
+.box-icon, .mobile-nav-link {
+  min-height: 44px;
+}
+.mobile-menu-panel .mobile-nav-link {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 12px 0;
+}
+
+/* ── Topbar: wrap gracefully on small screens ── */
+.tf-topbar p {
+  white-space: normal;
+  line-height: 1.4;
+}
+@media (max-width: 480px) {
+  .tf-topbar p { font-size: 11px !important; padding: 6px 8px !important; }
+  /* Hide phone number on ultra-small — keep trust badge */
+  .tf-topbar a[href^="tel"] { display: none; }
+}
+
+/* ── Hero slideshow: responsive height ── */
+/* Overrides the inline height="560px" via cascade */
+.tf-slideshow .sld_image img,
+.slider-wrap .sld_image img {
+  height: clamp(260px, 48vw, 560px) !important;
+}
+/* Hero text: scale down on mobile */
+@media (max-width: 768px) {
+  .sld_content .h1 { font-size: clamp(22px, 5.5vw, 44px) !important; margin-bottom: 12px !important; }
+  .sld_content h6  { font-size: 11px !important; margin-bottom: 8px !important; }
+  .sld_content p.text-body-1 { font-size: 14px !important; margin-bottom: 16px !important; }
+  .content-sld_wrap { padding: 16px 20px !important; }
+}
+
+/* ── Section spacing: reduce on mobile ── */
+@media (max-width: 768px) {
+  .flat-spacing   { padding-top: 40px !important; padding-bottom: 40px !important; }
+  .flat-spacing-4 { padding-top: 24px !important; padding-bottom: 24px !important; }
+}
+
+/* ── Category / product grid: 2-col on mobile (already default) ── */
+/* Override to single col on very small phones */
+@media (max-width: 360px) {
+  .tf-grid-layout.tf-col-2 { grid-template-columns: 1fr !important; }
+}
+
+/* ── Featured products wrap-prd: stack on mobile ── */
+@media (max-width: 1024px) {
+  .wrap-prd {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+  .col-prd-1, .col-prd-2 { width: 100% !important; }
+}
+
+/* ── "Section Arrival" 3-col: single col on mobile ── */
+@media (max-width: 767px) {
+  .section-thumbs-arrival .tf-grid-layout {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Footer: stack columns on mobile ── */
+@media (max-width: 768px) {
+  .footer-inner {
+    flex-direction: column !important;
+    gap: 32px !important;
+  }
+  .br-line.type-vertical { display: none !important; }
+  .col-left, .col-center, .col-right { width: 100% !important; }
+  .footer-link-list { flex-wrap: wrap !important; gap: 24px !important; }
+  .inner-bottom {
+    flex-direction: column !important;
+    gap: 8px !important;
+    text-align: center !important;
+  }
+}
+
+/* ── Header: reduce logo size on small screens ── */
+@media (max-width: 480px) {
+  .header-left .logo-site img { width: 120px !important; }
+  .header-inner { padding: 0 12px !important; }
+}
+
+/* ── Container: ensure horizontal padding on tiny screens ── */
+@media (max-width: 360px) {
+  .container, .container-full { padding-left: 12px !important; padding-right: 12px !important; }
+}
+
+/* ── Tailwind pages: extra px safety on 320px ── */
+@media (max-width: 360px) {
+  .max-w-7xl.mx-auto { padding-left: 12px !important; padding-right: 12px !important; }
+}
+
+/* ── 2K screens: cap content width ── */
+@media (min-width: 2048px) {
+  .container { max-width: 1800px; }
+  .container-full { padding-left: 80px; padding-right: 80px; }
 }

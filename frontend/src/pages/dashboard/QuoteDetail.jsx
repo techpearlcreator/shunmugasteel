@@ -171,15 +171,15 @@ export default function QuoteDetail() {
                         : null
                     })()}
                     <p className="text-xs text-gray-400 mt-1">Qty: {item.quantity} {item.unit}</p>
-                    {item.is_custom && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">Custom</span>}
+                    {!!item.is_custom && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">Custom</span>}
                   </div>
                   <div className="text-right flex-shrink-0">
                     {item.is_custom ? (
                       <span className="text-xs text-blue-600">Pricing TBD</span>
                     ) : (
                       <div>
-                        <p className="text-xs text-gray-400">{'\u20b9'}{Number(item.unit_price).toLocaleString('en-IN')}/MT</p>
-                        <p className="font-semibold text-gray-800">{'\u20b9'}{Number(item.total_price).toLocaleString('en-IN')}</p>
+                        <p className="text-xs text-gray-400">{'\u20b9'}{Number(item.unit_price).toLocaleString('en-IN', { minimumFractionDigits: 2 })}/MT</p>
+                        <p className="font-semibold text-gray-800">{'\u20b9'}{Number(item.total_price).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
                       </div>
                     )}
                   </div>
@@ -209,15 +209,15 @@ export default function QuoteDetail() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
-                <span>{'\u20b9'}{Number(quote.subtotal || 0).toLocaleString('en-IN')}</span>
+                <span>{'\u20b9'}{Number(quote.subtotal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>GST ({quote.gst_rate || 18}%)</span>
-                <span>+ {'\u20b9'}{Number(quote.gst_amount || 0).toLocaleString('en-IN')}</span>
+                <span>+ {'\u20b9'}{Number(quote.gst_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
               </div>
               <div className="border-t pt-3 mt-2 flex justify-between font-bold text-lg text-gray-800">
                 <span>Total</span>
-                <span style={{ color: '#E67E22' }}>{'\u20b9'}{Number(quote.total || 0).toLocaleString('en-IN')}</span>
+                <span style={{ color: '#E67E22' }}>{'\u20b9'}{Number(quote.total || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
               </div>
             </div>
 

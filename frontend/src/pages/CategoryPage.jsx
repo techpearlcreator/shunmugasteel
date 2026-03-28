@@ -171,7 +171,7 @@ export default function CategoryPage() {
   return (
     <div>
       {/* Category Banner */}
-      <div style={{ position: 'relative', height: '220px', overflow: 'hidden', background: '#1A252F' }}>
+      <div style={{ position: 'relative', height: 'clamp(140px, 25vw, 220px)', overflow: 'hidden', background: '#1A252F' }}>
         <img
           src={cdnImg(category.image || '')}
           alt={category.name}
@@ -180,13 +180,13 @@ export default function CategoryPage() {
         />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg,rgba(26,37,47,0.95) 0%,rgba(44,62,80,0.6) 100%)' }} />
         <div className="container" style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <nav style={{ fontSize: '12px', color: '#aaa', marginBottom: '12px' }}>
+          <nav style={{ fontSize: '12px', color: '#aaa', marginBottom: '12px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '4px' }}>
             <Link to="/" style={{ color: '#aaa', textDecoration: 'none' }}>Home</Link>
             <span style={{ margin: '0 8px' }}>›</span>
             <span style={{ color: '#fff' }}>{category.name}</span>
           </nav>
-          <h1 className="h2 text-white" style={{ marginBottom: '8px' }}>{category.name}</h1>
-          <p style={{ color: '#ccc', maxWidth: '600px', fontSize: '14px', margin: 0 }}>{category.description}</p>
+          <h1 className="h2 text-white" style={{ marginBottom: '8px', fontSize: 'clamp(20px, 4.5vw, 36px)' }}>{category.name}</h1>
+          <p style={{ color: '#ccc', maxWidth: '600px', fontSize: 'clamp(12px, 2vw, 14px)', margin: 0 }}>{category.description}</p>
         </div>
       </div>
 
