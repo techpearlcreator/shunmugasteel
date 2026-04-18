@@ -1,0 +1,7 @@
+@import "tailwindcss";
+@source "../src";
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', 'Segoe UI', sans-serif; background: #f3f4f6; color: #1f2937; }
+
+@keyframes spin { to { transform: rotate(360deg); } }

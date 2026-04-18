@@ -1,0 +1,262 @@
+/* Tailwind utilities only (no preflight reset — Amerce CSS handles resets) */
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+
+/* ── Prevent horizontal scroll on all screens ── */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { overflow-x: hidden; max-width: 100%; }
+
+/* ── Override Amerce primary color → Shunmuga Steel orange ── */
+:root {
+  --primary: #E67E22;
+  --color-steel-gray: #2C3E50;
+  --color-steel-dark: #1A252F;
+  --color-orange: #E67E22;
+}
+
+/* ── Root layout ── */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Logo steel-tag sub-text ── */
+.logo-site .steel-tag {
+  font-size: 10px;
+  color: #E67E22;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-family: sans-serif;
+  display: block;
+  margin-top: 2px;
+}
+
+/* ── Infinite marquee animation ── */
+@keyframes infiniteSlide {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-33.333%); }
+}
+
+/* ── Active tab button orange ── */
+.tf-btn-tab.active {
+  color: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+
+/* ── Mobile menu overlay ── */
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+}
+.mobile-menu-panel {
+  background: #fff;
+  width: 300px;
+  padding: 24px;
+  overflow-y: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.mobile-menu-panel .mobile-nav-link {
+  display: block;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #101010;
+  text-decoration: none;
+}
+.mobile-menu-panel .mobile-nav-link:hover {
+  color: #E67E22;
+}
+.mobile-menu-backdrop {
+  flex: 1;
+  background: rgba(0,0,0,0.5);
+}
+
+/* ════════════════════════════════════════════════════
+   RESPONSIVE — MOBILE-FIRST
+   Breakpoints: 320 · 480 · 768 · 1024 · 1440 · 2560
+   ════════════════════════════════════════════════════ */
+
+/* ── All images responsive by default ── */
+img { max-width: 100%; height: auto; }
+
+/* ── Touch targets: minimum 44 × 44px ── */
+.tf-btn, .btn-action, .nav-icon-item,
+.box-icon, .mobile-nav-link {
+  min-height: 44px;
+}
+.mobile-menu-panel .mobile-nav-link {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 12px 0;
+}
+
+/* ── Topbar: wrap gracefully on small screens ── */
+.tf-topbar p {
+  white-space: normal;
+  line-height: 1.4;
+}
+@media (max-width: 480px) {
+  .tf-topbar p { font-size: 11px !important; padding: 6px 8px !important; }
+  /* Hide phone number on ultra-small — keep trust badge */
+  .tf-topbar a[href^="tel"] { display: none; }
+}
+
+/* ── Hero slideshow: responsive height ── */
+/* Overrides the inline height="560px" via cascade */
+.tf-slideshow .sld_image img,
+.slider-wrap .sld_image img {
+  height: clamp(260px, 48vw, 560px) !important;
+}
+/* Hero text: scale down on mobile */
+@media (max-width: 768px) {
+  .sld_content .h1 { font-size: clamp(22px, 5.5vw, 44px) !important; margin-bottom: 12px !important; }
+  .sld_content h6  { font-size: 11px !important; margin-bottom: 8px !important; }
+  .sld_content p.text-body-1 { font-size: 14px !important; margin-bottom: 16px !important; }
+  .content-sld_wrap { padding: 16px 20px !important; }
+}
+
+/* ── Section spacing: reduce on mobile ── */
+@media (max-width: 768px) {
+  .flat-spacing   { padding-top: 40px !important; padding-bottom: 40px !important; }
+  .flat-spacing-4 { padding-top: 24px !important; padding-bottom: 24px !important; }
+}
+
+/* ── Category / product grid: 2-col on mobile (already default) ── */
+/* Override to single col on very small phones */
+@media (max-width: 360px) {
+  .tf-grid-layout.tf-col-2 { grid-template-columns: 1fr !important; }
+}
+
+/* ── Featured products wrap-prd: stack on mobile ── */
+@media (max-width: 1024px) {
+  .wrap-prd {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+  }
+  .col-prd-1, .col-prd-2 { width: 100% !important; }
+}
+
+/* ── "Section Arrival" 3-col: single col on mobile ── */
+@media (max-width: 767px) {
+  .section-thumbs-arrival .tf-grid-layout {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Footer: stack columns on mobile ── */
+@media (max-width: 768px) {
+  .footer-inner {
+    flex-direction: column !important;
+    gap: 32px !important;
+  }
+  .br-line.type-vertical { display: none !important; }
+  .col-left, .col-center, .col-right { width: 100% !important; }
+  .footer-link-list { flex-wrap: wrap !important; gap: 24px !important; }
+  .inner-bottom {
+    flex-direction: column !important;
+    gap: 8px !important;
+    text-align: center !important;
+  }
+}
+
+/* ── Header: reduce logo size on small screens ── */
+@media (max-width: 480px) {
+  .header-left .logo-site img { width: 120px !important; }
+  .header-inner { padding: 0 12px !important; }
+}
+
+/* ── Container: ensure horizontal padding on tiny screens ── */
+@media (max-width: 360px) {
+  .container, .container-full { padding-left: 12px !important; padding-right: 12px !important; }
+}
+
+/* ── Tailwind pages: extra px safety on 320px ── */
+@media (max-width: 360px) {
+  .max-w-7xl.mx-auto { padding-left: 12px !important; padding-right: 12px !important; }
+}
+
+/* ── 2K screens: cap content width ── */
+@media (min-width: 2048px) {
+  .container { max-width: 1800px; }
+  .container-full { padding-left: 80px; padding-right: 80px; }
+}
+
+/* ── Category slider: uniform image size ── */
+.category-v04 .cate-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+.category-v04 .cate-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Logo 2x size, keep header compact ── */
+.tf-header .logo-site {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+.tf-header .logo-site img {
+  height: 56px !important;
+  width: auto !important;
+  max-width: none !important;
+}
+
+/* ── Hero banner CTA button ── */
+.glass-btn-gold {
+  position: relative;
+  background: linear-gradient(
+    145deg,
+    rgba(201, 162, 39, 0.85) 0%,
+    rgba(184, 145, 31, 0.90) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-top-color: rgba(255, 220, 80, 0.55);
+  box-shadow:
+    0 2px 14px rgba(201, 162, 39, 0.50),
+    0 1px 0 rgba(255, 230, 100, 0.35) inset,
+    0 -1px 0 rgba(120, 90, 0, 0.30) inset;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+.glass-btn-gold::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    transparent 55%
+  );
+  pointer-events: none;
+}
+.glass-btn-gold:hover {
+  box-shadow:
+    0 6px 28px rgba(201, 162, 39, 0.70),
+    0 1px 0 rgba(255, 230, 100, 0.45) inset,
+    0 -1px 0 rgba(120, 90, 0, 0.30) inset;
+  transform: translateY(-2px);
+  border-top-color: rgba(255, 230, 80, 0.70);
+}
+.glass-btn-gold:active {
+  transform: translateY(1px);
+  box-shadow:
+    0 1px 8px rgba(201, 162, 39, 0.40),
+    0 2px 5px rgba(0, 0, 0, 0.20) inset;
+}
