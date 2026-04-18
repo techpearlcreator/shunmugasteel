@@ -260,6 +260,48 @@ export default function Home() {
   const dealTarget = deal ? new Date(deal.end_at).getTime() : 0
   const countdown  = useCountdown(dealTarget)
 
+  const testimonialsSecRef    = useRef(null)
+  const testimonialsSliderRef = useRef(null)
+  const testimonialsSwiperRef = useRef(null)
+
+  useEffect(() => {
+    const section = testimonialsSecRef.current
+    const slider  = testimonialsSliderRef.current
+    if (!section || !slider) return
+
+    // Start hidden off-screen to the right
+    slider.style.transform  = 'translateX(100%)'
+    slider.style.transition = 'none'
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        observer.disconnect()
+
+        // Trigger reveal on next frame so initial transform is painted first
+        requestAnimationFrame(() => {
+          slider.style.transition = 'transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+          slider.style.transform  = 'translateX(0)'
+        })
+
+        // Start autoplay after reveal finishes (0.9s)
+        const startAutoplay = () => {
+          if (testimonialsSwiperRef.current?.autoplay) {
+            testimonialsSwiperRef.current.autoplay.start()
+          }
+        }
+
+        slider.addEventListener('transitionend', startAutoplay, { once: true })
+        // Fallback in case transitionend doesn't fire
+        setTimeout(startAutoplay, 950)
+      },
+      { threshold: 0.15 }
+    )
+
+    observer.observe(section)
+    return () => observer.disconnect()
+  }, [])
+
   const tabProducts = TAB_PRODUCTS[activeTab] || FLAT_PRODUCTS
   const tabBanner = TAB_BANNERS[activeTab] || TAB_BANNERS.flat
 
@@ -594,16 +636,18 @@ export default function Home() {
       {/* ═══ /Lookbook ═══ */}
 
       {/* ═══ Testimonials ═══ */}
-      <section className="flat-spacing" style={{ background: '#f7f7f7' }}>
+      <section ref={testimonialsSecRef} className="flat-spacing" style={{ background: '#f7f7f7' }}>
         <div className="container">
           <div className="sect-heading type-2 text-center wow fadeInUp">
             <h3 className="s-title">What Our Customers Say</h3>
             <p className="s-desc text-body-1 cl-text-2">Trusted by hundreds of builders, contractors and steel distributors across Tamil Nadu.</p>
           </div>
+          <div ref={testimonialsSliderRef} style={{ overflow: 'hidden' }}>
           <Swiper
             modules={[Autoplay, Pagination]}
             loop={true}
-            autoplay={{ delay: 4000, disableOnInteraction: false }}
+            autoplay={false}
+            onSwiper={(swiper) => { testimonialsSwiperRef.current = swiper }}
             pagination={{ clickable: true }}
             breakpoints={{
               0:    { slidesPerView: 1, spaceBetween: 16 },
@@ -646,6 +690,7 @@ export default function Home() {
               </SwiperSlide>
             ))}
           </Swiper>
+          </div>
         </div>
       </section>
       {/* ═══ /Testimonials ═══ */}
