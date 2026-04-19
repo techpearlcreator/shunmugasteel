@@ -12,9 +12,9 @@ const STATUS_CONFIG = {
 }
 
 const FALLBACK_QUOTES = [
-  { id: 1, quote_number: 'SST-2024-001', status: 'delivered', created_at: '2024-11-01T10:00:00Z', total: 145600, gst_amount: 22152, items_count: 3, delivery_city: 'Chennai' },
-  { id: 2, quote_number: 'SST-2024-002', status: 'quoted', created_at: '2024-11-15T14:30:00Z', total: 89200, gst_amount: 13574, items_count: 2, delivery_city: 'Erode' },
-  { id: 3, quote_number: 'SST-2024-003', status: 'pending', created_at: '2024-12-01T09:00:00Z', total: 0, gst_amount: 0, items_count: 1, delivery_city: 'Chennai' },
+  { id: 1, quote_number: 'SST-2024-001', status: 'dispatched', created_at: '2024-11-01T10:00:00Z', total: 145600, gst_amount: 22152, item_count: 3, delivery_city: 'Chennai' },
+  { id: 2, quote_number: 'SST-2024-002', status: 'confirmed', created_at: '2024-11-15T14:30:00Z', total: 89200, gst_amount: 13574, item_count: 2, delivery_city: 'Erode' },
+  { id: 3, quote_number: 'SST-2024-003', status: 'submitted', created_at: '2024-12-01T09:00:00Z', total: 0, gst_amount: 0, item_count: 1, delivery_city: 'Chennai' },
 ]
 
 function formatDate(dateStr) {
@@ -86,7 +86,7 @@ export default function MyQuotes() {
                     </div>
                     <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">
                       <span>&#128197; {formatDate(quote.created_at)}</span>
-                      <span>&#128230; {quote.items_count || 1} item{quote.items_count !== 1 ? 's' : ''}</span>
+                      <span>&#128230; {quote.item_count || 1} item{quote.item_count !== 1 ? 's' : ''}</span>
                       {quote.delivery_city && <span>&#128205; {quote.delivery_city}</span>}
                     </div>
                   </div>

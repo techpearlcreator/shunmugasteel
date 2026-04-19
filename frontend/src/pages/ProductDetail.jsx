@@ -140,11 +140,16 @@ export default function ProductDetail() {
     setCalculating(true)
     try {
       const res = await productService.calculatePrice({
-        product_id: product.id,
-        thickness: parseFloat(customThick),
-        width: parseFloat(customWidth),
-        length: parseFloat(customLength),
-        quantity: parseInt(customQty),
+        items: [{
+          product_id: product.id,
+          quantity: parseInt(customQty),
+          is_custom: true,
+          specs: {
+            thickness: parseFloat(customThick),
+            width: parseFloat(customWidth),
+            length: parseFloat(customLength),
+          },
+        }],
       })
       setCalcResult(res.data?.data || res.data)
     } catch {
@@ -157,6 +162,7 @@ export default function ProductDetail() {
 
   const handleAddStandard = () => {
     if (!selectedVariant) return
+    const imgSrc = product.primary_image || cdnImg(product.image_url || PRODUCT_IMAGES[productSlug] || '')
     addItem({
       product: { id: product.id, name: product.name, slug: product.slug },
       variant: { id: selectedVariant.id, name: selectedVariant.variant_name || selectedVariant.name },
@@ -166,6 +172,7 @@ export default function ProductDetail() {
       total_price: (selectedVariant.price_per_unit || selectedVariant.price || 0) * quantity,
       specs: selectedVariant.variant_name || selectedVariant.name,
       is_custom: false,
+      image: imgSrc,
     })
     setAddedMsg('Added to quote basket!')
     setTimeout(() => setAddedMsg(''), 2000)
@@ -174,6 +181,7 @@ export default function ProductDetail() {
   const handleAddCustom = () => {
     if (!customThick || !customWidth || !customLength || !customQty) return
     const specs = `${customThick}mm × ${customWidth}mm × ${customLength}m × Qty ${customQty}`
+    const imgSrc = product.primary_image || cdnImg(product.image_url || PRODUCT_IMAGES[productSlug] || '')
     addItem({
       product: { id: product.id, name: product.name, slug: product.slug },
       variant: null,
@@ -183,6 +191,7 @@ export default function ProductDetail() {
       total_price: 0,
       specs,
       is_custom: true,
+      image: imgSrc,
     })
     setAddedMsg('Added to quote basket! Our team will confirm pricing.')
     setTimeout(() => setAddedMsg(''), 3000)

@@ -87,4 +87,17 @@ export const getCustomer     = (id) => adminApi.get(`/admin/customers/${id}`)
 export const getSettings     = (group) => adminApi.get('/admin/settings', { params: { group } })
 export const saveSettings    = (data) => adminApi.put('/admin/settings', data)
 
+// ── HERO SLIDES ───────────────────────────
+export const getSlides      = () => adminApi.get('/admin/slides')
+export const createSlide    = (data) => adminApi.post('/admin/slides', data)
+export const updateSlide    = (id, data) => adminApi.put(`/admin/slides/${id}`, data)
+export const deleteSlide    = (id) => adminApi.delete(`/admin/slides/${id}`)
+export const uploadSlideImage = (id, file) => {
+  const fd = new FormData()
+  fd.append('image', file)
+  return adminApi.post(`/admin/slides/${id}/image`, fd, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+}
+
 export default adminApi

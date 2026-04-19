@@ -8,6 +8,11 @@ class CategoryController {
         $this->db = Database::getInstance();
     }
 
+    private static function imageUrl(?string $path): string {
+        if (!$path) return '';
+        return str_starts_with($path, 'http') ? $path : BASE_URL . '/' . $path;
+    }
+
     public function index(): never {
         $stmt = $this->db->query('
             SELECT c.*,
@@ -49,21 +54,32 @@ class CategoryController {
 
         if (!$category) respond(404, 'Category not found');
 
-        // Get products in this category
+        // Include sub-category products if this is a parent category
         $stmt = $this->db->prepare('
             SELECT p.*,
                    pi.image_path as primary_image,
-                   pv.price_per_unit as starting_price,
-                   pv.unit as price_unit
+                   COALESCE(MIN(pv.price_per_unit), pr.price_per_ton) as starting_price,
+                   COALESCE(pv.unit, "MT") as price_unit
             FROM products p
             LEFT JOIN product_images pi ON pi.product_id = p.id AND pi.is_primary = 1
             LEFT JOIN product_variants pv ON pv.product_id = p.id AND pv.status = "active"
-            WHERE p.category_id = ? AND p.status = "active"
+            LEFT JOIN product_pricing_rules pr ON pr.product_id = p.id
+            WHERE p.status = "active"
+              AND (
+                p.category_id = ?
+                OR p.category_id IN (
+                    SELECT id FROM categories WHERE parent_id = ? AND status = "active"
+                )
+              )
             GROUP BY p.id
             ORDER BY p.sort_order ASC, p.name ASC
         ');
-        $stmt->execute([$category['id']]);
-        $category['products'] = $stmt->fetchAll();
+        $stmt->execute([$category['id'], $category['id']]);
+        $rows = $stmt->fetchAll();
+        foreach ($rows as &$p) {
+            $p['primary_image'] = self::imageUrl($p['primary_image'] ?? '');
+        }
+        $category['products'] = $rows;
 
         respond(200, $category);
     }

@@ -59,7 +59,7 @@ export default function QuoteBasketPage() {
         notes,
       }
       const res = await quoteService.createQuote(payload)
-      const quoteId = res.data?.data?.id || res.data?.id
+      const quoteId = res.data?.data?.quote_id || res.data?.quote_id
       clearBasket()
       navigate(quoteId ? '/my-quotes/' + quoteId : '/my-quotes')
     } catch (err) {

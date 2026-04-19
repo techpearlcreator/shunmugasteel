@@ -270,6 +270,25 @@ export default function Home() {
   const [lbSlide, setLbSlide] = useState(1)
   const lookbookRef = useRef(null)
   const [deal, setDeal] = useState(null)
+  const [heroSlides, setHeroSlides] = useState(HERO_SLIDES)
+
+  useEffect(() => {
+    fetch(`${API}/hero-slides`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setHeroSlides(data.map((s) => ({
+            image: s.image_url || CDN('hot-rolled-coils-sheets-bannerb1f5.jpg'),
+            subtitle: s.subtitle || '',
+            title: s.title || '',
+            desc: s.description || '',
+            cta: s.cta_text || 'Get a Quote',
+            link: s.cta_link || '/quote-basket',
+          })))
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     fetch(`${API}/hurry-deal`)
@@ -315,7 +334,7 @@ export default function Home() {
             pagination={{ clickable: true }}
             className="tf-swiper sw-slide-show slider_effect_fade"
           >
-            {HERO_SLIDES.map((slide, idx) => (
+            {heroSlides.map((slide, idx) => (
               <SwiperSlide key={idx}>
                 <div className="slider-wrap slideshow-wrap rounded-20 overflow-hidden">
                   <div className="sld_image">

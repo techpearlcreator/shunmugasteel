@@ -3,9 +3,9 @@
 
 USE shunmugasteel_db;
 
--- Add brand field to variants (if not already present)
+-- Add brand field to variants
 ALTER TABLE product_variants
-  ADD COLUMN IF NOT EXISTS brand VARCHAR(100) DEFAULT NULL
+  ADD COLUMN brand VARCHAR(100) DEFAULT NULL
     COMMENT 'e.g. SAIL, JSW, AMNS India'
     AFTER grade;
 

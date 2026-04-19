@@ -122,12 +122,12 @@ export default function QuoteDetail() {
   const timeline = Array.isArray(quote.timeline) ? quote.timeline : (safeJson(quote.timeline) || [])
 
   const subtotal = items.reduce((s, it) => s + (Number(it.unit_price || 0) * Number(it.quantity || 0)), 0)
-  const gstPct   = Number(quote.gst_percent || 18)
+  const gstPct   = Number(quote.gst_percentage || 18)
   const gstAmt   = subtotal * gstPct / 100
   const grandTotal = subtotal + gstAmt
 
   const fmtAddr = addr
-    ? [addr.line1, addr.line2, addr.city, addr.state, addr.pincode].filter(Boolean).join(', ')
+    ? [addr.name, addr.address, addr.city, addr.state, addr.pincode].filter(Boolean).join(', ')
     : (quote.delivery_address || '—')
 
   return (

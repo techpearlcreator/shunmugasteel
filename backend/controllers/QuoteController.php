@@ -211,7 +211,7 @@ class QuoteController {
                 $lineItems[] = compact('productId', 'variantId', 'quantity', 'unitPrice', 'totalPrice', 'specs') + [
                     'product_name' => $product['name'],
                     'brand'        => $product['brand'],
-                    'unit'         => $variant['unit'],
+                    'unit'         => $variant['unit'] ?? 'MT',
                     'is_custom'    => 0,
                 ];
             } else {
@@ -220,7 +220,11 @@ class QuoteController {
                 $rule = $stmt->fetch();
                 if (!$rule) respond(422, "Pricing rules not found for product #$productId");
 
-                $itemSpecs  = $item['specs'] ?? [];
+                $rawSpecs   = $item['specs'] ?? [];
+                $itemSpecs  = is_array($rawSpecs) ? $rawSpecs : [];
+                $specsJson  = is_array($rawSpecs) && !empty($rawSpecs)
+                    ? json_encode($rawSpecs)
+                    : json_encode(['description' => (string)($rawSpecs ?: '')]);
                 $unitPrice  = $this->calculateCustomPrice($rule, $itemSpecs, $quantity);
                 $totalPrice = $unitPrice * $quantity;
 
@@ -230,10 +234,10 @@ class QuoteController {
                     'product_name' => $product['name'],
                     'brand'        => $product['brand'],
                     'quantity'     => $quantity,
-                    'unit'         => $rule['primary_pricing_unit'],
+                    'unit'         => $rule['primary_pricing_unit'] ?? 'MT',
                     'unitPrice'    => $unitPrice,
                     'totalPrice'   => $totalPrice,
-                    'specs'        => json_encode($itemSpecs),
+                    'specs'        => $specsJson,
                     'is_custom'    => 1,
                 ];
             }
@@ -251,45 +255,54 @@ class QuoteController {
         $count = (int)$stmt->fetch()['cnt'] + 1;
         $quoteNumber = sprintf('SST-%d-%04d', $year, $count);
 
-        // Insert quote header
-        $stmt = $this->db->prepare('
-            INSERT INTO quotes (quote_number, user_id, status, subtotal, gst_percentage, gst_amount, total_amount, delivery_address, customer_notes, valid_until)
-            VALUES (?, ?, "submitted", ?, ?, ?, ?, ?, ?, ?)
-        ');
-        $deliveryAddress = isset($data['delivery_address'])
-            ? json_encode($data['delivery_address'])
-            : null;
-        $stmt->execute([
-            $quoteNumber, $userId, round($subtotal, 2), $gstPct,
-            round($gstAmount, 2), round($total, 2),
-            $deliveryAddress, $data['notes'] ?? null, $validUntil,
-        ]);
-        $quoteId = $this->db->lastInsertId();
-
-        // Insert line items
-        foreach ($lineItems as $li) {
+        // Insert quote header + items atomically
+        $this->db->beginTransaction();
+        try {
             $stmt = $this->db->prepare('
-                INSERT INTO quote_items (quote_id, product_id, variant_id, product_name, brand, specifications, quantity, unit, unit_price, total_price, is_custom)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO quotes (quote_number, user_id, status, subtotal, gst_percentage, gst_amount, total_amount, delivery_address, customer_notes, valid_until)
+                VALUES (?, ?, "submitted", ?, ?, ?, ?, ?, ?, ?)
             ');
+            $deliveryAddress = isset($data['delivery_address'])
+                ? json_encode($data['delivery_address'])
+                : null;
             $stmt->execute([
-                $quoteId,
-                $li['productId'] ?? $li['product_id'] ?? null,
-                $li['variantId'] ?? $li['variant_id'] ?? null,
-                $li['product_name'],
-                $li['brand'],
-                $li['specs'],
-                $li['quantity'],
-                $li['unit'],
-                $li['unitPrice'] ?? $li['unit_price'],
-                $li['totalPrice'] ?? $li['total_price'],
-                $li['is_custom'],
+                $quoteNumber, $userId, round($subtotal, 2), $gstPct,
+                round($gstAmount, 2), round($total, 2),
+                $deliveryAddress, $data['notes'] ?? null, $validUntil,
             ]);
-        }
+            $quoteId = $this->db->lastInsertId();
 
-        // Insert status history
-        $this->db->prepare('INSERT INTO quote_status_history (quote_id, new_status, changed_by_type, notes) VALUES (?, "submitted", "user", "Quote submitted by customer")')
-                 ->execute([$quoteId]);
+            // Insert line items
+            foreach ($lineItems as $li) {
+                $stmt = $this->db->prepare('
+                    INSERT INTO quote_items (quote_id, product_id, variant_id, product_name, brand, specifications, quantity, unit, unit_price, total_price, is_custom)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ');
+                $stmt->execute([
+                    $quoteId,
+                    $li['productId'] ?? $li['product_id'] ?? null,
+                    $li['variantId'] ?? $li['variant_id'] ?? null,
+                    $li['product_name'],
+                    $li['brand'],
+                    $li['specs'],
+                    $li['quantity'],
+                    $li['unit'],
+                    $li['unitPrice'] ?? $li['unit_price'],
+                    $li['totalPrice'] ?? $li['total_price'],
+                    $li['is_custom'],
+                ]);
+            }
+
+            // Insert status history
+            $this->db->prepare('INSERT INTO quote_status_history (quote_id, new_status, changed_by_type, notes) VALUES (?, "submitted", "user", "Quote submitted by customer")')
+                     ->execute([$quoteId]);
+
+            $this->db->commit();
+        } catch (\Throwable $e) {
+            $this->db->rollBack();
+            error_log('Quote insert failed: ' . $e->getMessage());
+            respond(500, 'Failed to save quote. Please try again.');
+        }
 
         // Send email notifications
         try {

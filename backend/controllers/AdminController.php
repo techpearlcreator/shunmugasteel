@@ -178,9 +178,9 @@ class AdminController {
                     $stmt->execute([$id]);
                     $quote['items'] = $stmt->fetchAll();
 
-                    $stmt = $this->db->prepare('SELECT * FROM quote_status_history WHERE quote_id = ? ORDER BY created_at ASC');
+                    $stmt = $this->db->prepare('SELECT new_status AS status, notes AS note, created_at AS timestamp FROM quote_status_history WHERE quote_id = ? ORDER BY created_at ASC');
                     $stmt->execute([$id]);
-                    $quote['status_history'] = $stmt->fetchAll();
+                    $quote['timeline'] = $stmt->fetchAll();
 
                     respond(200, $quote);
                 }
@@ -513,5 +513,76 @@ class AdminController {
         }
 
         respond(405, 'Method not allowed');
+    }
+
+    // Hero Slides CRUD — /admin/slides
+    public function slides(string $method, ?string $id): never {
+        switch ($method) {
+            case 'GET':
+                $rows = $this->db->query('SELECT * FROM hero_slides ORDER BY sort_order ASC')->fetchAll();
+                foreach ($rows as &$r) $r['image_url'] = self::imageUrl($r['image_path']);
+                respond(200, $rows);
+
+            case 'POST':
+                $data = input();
+                $stmt = $this->db->prepare('INSERT INTO hero_slides (image_path, subtitle, title, description, cta_text, cta_link, sort_order, status) VALUES (?,?,?,?,?,?,?,?)');
+                $stmt->execute([
+                    $data['image_path'] ?? '',
+                    $data['subtitle']   ?? '',
+                    $data['title']      ?? '',
+                    $data['description'] ?? '',
+                    $data['cta_text']   ?? 'Get a Quote',
+                    $data['cta_link']   ?? '/quote-basket',
+                    $data['sort_order'] ?? 0,
+                    $data['status']     ?? 'active',
+                ]);
+                respond(201, ['id' => $this->db->lastInsertId(), 'message' => 'Slide created']);
+
+            case 'PUT':
+                $data = input();
+                $this->db->prepare('UPDATE hero_slides SET subtitle=?, title=?, description=?, cta_text=?, cta_link=?, sort_order=?, status=? WHERE id=?')
+                    ->execute([
+                        $data['subtitle']    ?? '',
+                        $data['title']       ?? '',
+                        $data['description'] ?? '',
+                        $data['cta_text']    ?? 'Get a Quote',
+                        $data['cta_link']    ?? '/quote-basket',
+                        $data['sort_order']  ?? 0,
+                        $data['status']      ?? 'active',
+                        $id,
+                    ]);
+                respond(200, ['message' => 'Slide updated']);
+
+            case 'DELETE':
+                $this->db->prepare('DELETE FROM hero_slides WHERE id = ?')->execute([$id]);
+                respond(200, ['message' => 'Slide deleted']);
+
+            default: respond(405, 'Method not allowed');
+        }
+    }
+
+    // Hero Slide Image Upload — POST /admin/slides/:id/image
+    public function slideImage(string $slideId): never {
+        if (!isset($_FILES['image'])) respond(400, 'No image file');
+        $file = $_FILES['image'];
+        if ($file['error'] !== UPLOAD_ERR_OK) respond(400, 'Upload error: ' . $file['error']);
+
+        $allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (!in_array($file['type'], $allowed)) respond(400, 'Only JPG, PNG, WEBP allowed');
+        if ($file['size'] > 10 * 1024 * 1024) respond(400, 'Max file size is 10MB');
+
+        $uploadDir = __DIR__ . '/../uploads/slides/';
+        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+        $ext      = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $filename = 'slide_' . $slideId . '_' . uniqid() . '.' . $ext;
+        $dest     = $uploadDir . $filename;
+
+        if (!move_uploaded_file($file['tmp_name'], $dest)) respond(500, 'Failed to save image');
+
+        $storedPath = 'uploads/slides/' . $filename;
+        $this->db->prepare('UPDATE hero_slides SET image_path = ? WHERE id = ?')->execute([$storedPath, $slideId]);
+
+        respond(200, ['image_path' => $storedPath, 'image_url' => self::imageUrl($storedPath)]);
     }
 }
