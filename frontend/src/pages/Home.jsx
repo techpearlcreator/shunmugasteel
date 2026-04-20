@@ -13,10 +13,10 @@ function useCountdown(targetDate) {
   const calc = (target) => {
     const diff = Math.max(0, target - Date.now())
     return {
-      days:  Math.floor(diff / 86400000),
+      days: Math.floor(diff / 86400000),
       hours: Math.floor((diff % 86400000) / 3600000),
-      mins:  Math.floor((diff % 3600000) / 60000),
-      secs:  Math.floor((diff % 60000) / 1000),
+      mins: Math.floor((diff % 3600000) / 60000),
+      secs: Math.floor((diff % 60000) / 1000),
     }
   }
   const [time, setTime] = useState({ days: 0, hours: 0, mins: 0, secs: 0 })
@@ -48,11 +48,11 @@ function LookbookPin({ product, dropstart, top, left }) {
         {open && (
           <div className="dropdown-menu pst-2 show">
             <div className="lookbook-product">
-              <Link to={`/products/${product.slug}`} className="image" onClick={() => setOpen(false)}>
+              <Link to={`/product/${product.slug}`} className="image" onClick={() => setOpen(false)}>
                 <img width="88" height="88" src={product.img} alt={product.name} />
               </Link>
               <div className="content">
-                <Link to={`/products/${product.slug}`} className="name-prd link fw-medium lh-24 text-line-clamp-2" onClick={() => setOpen(false)}>
+                <Link to={`/product/${product.slug}`} className="name-prd link fw-medium lh-24 text-line-clamp-2" onClick={() => setOpen(false)}>
                   {product.name}
                 </Link>
                 <div className="price-wrap">
@@ -253,24 +253,24 @@ export default function Home() {
           setDeal(d)
         }
       })
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   // Use 0 when no deal — stable across renders, avoids Date.now() changing every render
   const dealTarget = deal ? new Date(deal.end_at).getTime() : 0
-  const countdown  = useCountdown(dealTarget)
+  const countdown = useCountdown(dealTarget)
 
-  const testimonialsSecRef    = useRef(null)
+  const testimonialsSecRef = useRef(null)
   const testimonialsSliderRef = useRef(null)
   const testimonialsSwiperRef = useRef(null)
 
   useEffect(() => {
     const section = testimonialsSecRef.current
-    const slider  = testimonialsSliderRef.current
+    const slider = testimonialsSliderRef.current
     if (!section || !slider) return
 
     // Start hidden off-screen to the right
-    slider.style.transform  = 'translateX(100%)'
+    slider.style.transform = 'translateX(100%)'
     slider.style.transition = 'none'
 
     const observer = new IntersectionObserver(
@@ -281,7 +281,7 @@ export default function Home() {
         // Trigger reveal on next frame so initial transform is painted first
         requestAnimationFrame(() => {
           slider.style.transition = 'transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-          slider.style.transform  = 'translateX(0)'
+          slider.style.transform = 'translateX(0)'
         })
 
         // Start autoplay after reveal finishes (0.9s)
@@ -316,7 +316,7 @@ export default function Home() {
       <section className="themesFlat flat-spacing">
         <div className="container">
           <div className="sect-heading type-2 text-center wow fadeInUp">
-            <h3 className="s-title">Steel Product Categories</h3>
+            <h3 className="s-title"> Product Categories</h3>
             <p className="s-desc text-body-1 cl-text-2">Premium quality steel materials for construction, manufacturing &amp; infrastructure projects.</p>
           </div>
           <Swiper
@@ -325,9 +325,9 @@ export default function Home() {
             autoplay={{ delay: 4000, disableOnInteraction: false }}
             pagination={{ clickable: true }}
             breakpoints={{
-              0:    { slidesPerView: 2, spaceBetween: 10 },
-              576:  { slidesPerView: 3, spaceBetween: 15 },
-              768:  { slidesPerView: 4, spaceBetween: 20 },
+              0: { slidesPerView: 2, spaceBetween: 10 },
+              576: { slidesPerView: 3, spaceBetween: 15 },
+              768: { slidesPerView: 4, spaceBetween: 20 },
               1200: { slidesPerView: 5, spaceBetween: 40 },
             }}
             className="tf-swiper swiper-cate"
@@ -356,7 +356,7 @@ export default function Home() {
         <div className="container">
           <div className="sect-heading type-2 has-col-right">
             <div className="wow fadeInUp">
-              <h3 className="s-title">Featured Steel Products</h3>
+              <h3 className="s-title">Steel Products</h3>
               <p className="s-desc text-body-1 cl-text-2">Weekly Favorites Selected With Care To Support Your Wellbeing.</p>
             </div>
             <div className="col-right overflow-auto wow fadeInUp" data-wow-delay="0.1s">
@@ -468,7 +468,7 @@ export default function Home() {
       <section className="flat-spacing">
         <div className="container">
           <div className="sect-heading type-2 text-center wow fadeInUp">
-            <h3 className="s-title">Featured Steel Products</h3>
+            <h3 className="s-title">Our Steel Products</h3>
             <p className="s-desc text-body-1 cl-text-2">Weekly Favorites Selected With Care To Support Your Wellbeing.</p>
           </div>
           <Swiper
@@ -477,9 +477,9 @@ export default function Home() {
             autoplay={{ delay: 3000, disableOnInteraction: false }}
             pagination={{ clickable: true }}
             breakpoints={{
-              0:    { slidesPerView: 1, spaceBetween: 10 },
-              576:  { slidesPerView: 2, spaceBetween: 15 },
-              768:  { slidesPerView: 3, spaceBetween: 20 },
+              0: { slidesPerView: 1, spaceBetween: 10 },
+              576: { slidesPerView: 2, spaceBetween: 15 },
+              768: { slidesPerView: 3, spaceBetween: 20 },
               1200: { slidesPerView: 4, spaceBetween: 30 },
             }}
             className="tf-swiper wrap-sw-over"
@@ -541,51 +541,82 @@ export default function Home() {
               onSlideChange={(swiper) => setLbSlide(swiper.realIndex + 1)}
               className="tf-swiper swiper-type-number rounded-top-20"
             >
-              {/* Slide 1 — Construction site */}
+              {/* ── Slide 1 — Storage Yard / Heavy Coils ── */}
               <SwiperSlide>
                 <div className="banner-lookbook wrap-lookbook_hover style-2">
-                  <img className="img-banner" loading="lazy" width="1920" height="640" src="/lookbook-steel-site.png" alt="Steel Construction Site" />
-                  {/* HR Coils — left side near the steel coils on pallets */}
-                  <LookbookPin top="45%" left="10%" dropstart={false} product={{
-                    slug: 'hr-coils-sheets', name: 'HR Coil IS 2062 – Hot Rolled Steel', img: CDN('hot-rolled-coils-sheets-bannerb1f5.jpg'),
-                    price: 'Price on Request', note: 'Bulk Rate Available',
+                  <img className="img-banner" loading="lazy" width="1920" height="640" src="/lookbook-steel-warehouse.png" alt="Steel Storage Yard" />
+                  <LookbookPin top="62%" left="14%" dropstart={false} product={{
+                    slug: 'hot-rolled-coils-sheets', name: 'Hot Rolled Coils & Sheets',
+                    img: CDN('hot-rolled-coils-sheets-bannerb1f5.jpg'), price: 'Price on Request', note: 'Bulk Rate Available',
                   }} />
-                  {/* Decking Sheets — top center where workers install roof decking */}
-                  <LookbookPin top="18%" left="55%" dropstart={false} product={{
-                    slug: 'decking-sheets', name: 'Galvalume Decking Sheet', img: CDN('decking-sheets-17e37.jpg'),
-                    price: 'Price on Request', note: 'Custom Sizes Available',
+                  <LookbookPin top="55%" left="35%" dropstart={false} product={{
+                    slug: 'cold-rolled-coils-sheets', name: 'Cold Rolled Coils & Sheets',
+                    img: CDN('images/SST-CR-Coils-2ec0d.png'), price: 'Price on Request', note: 'Bulk Rate Available',
                   }} />
-                  {/* GP Sheets — right side near stacked sheet piles */}
-                  <LookbookPin top="48%" left="78%" dropstart={true} product={{
-                    slug: 'gp-sheets-coils', name: 'GP Sheet IS 277 – Galvanized Plain', img: CDN('gpsheetcoilc6bd.jpg'),
-                    price: 'Price on Request', note: 'Min. Order: 500 kg',
+                  <LookbookPin top="28%" left="20%" dropstart={false} product={{
+                    slug: 'gp-sheets-coils', name: 'GP Sheets & Coils',
+                    img: CDN('gpsheetcoilc6bd.jpg'), price: 'Price on Request', note: 'Min. Order: 500 kg',
+                  }} />
+                  <LookbookPin top="40%" left="62%" dropstart={true} product={{
+                    slug: 'ppgl-colour-coated-coils', name: 'PPGL Colour Coated Coils',
+                    img: CDN('Color-Coated-Coilsb58b.jpg'), price: 'Price on Request', note: 'Bulk Rate Available',
+                  }} />
+                  <LookbookPin top="52%" left="80%" dropstart={true} product={{
+                    slug: 'gp-slitted-coils', name: 'GP Slitted Coils',
+                    img: CDN('gp-slit-coil-952cf2f.jpg'), price: 'Price on Request', note: 'Custom Slit Width',
+                  }} />
+                  <LookbookPin top="72%" left="88%" dropstart={true} product={{
+                    slug: 'cr-slitted-coils', name: 'CR Slitted Coils',
+                    img: CDN('0-25mm-cold-rolled-coil-1000x1000cf88.jpg'), price: 'Price on Request', note: 'Custom Slit Width',
                   }} />
                 </div>
               </SwiperSlide>
-              {/* Slide 2 — Warehouse interior */}
+
+              {/* ── Slide 2 — Construction Site / Roofing ── */}
               <SwiperSlide>
                 <div className="banner-lookbook wrap-lookbook_hover style-2">
-                  <img className="img-banner" loading="lazy" width="1920" height="640" src="/lookbook-steel-warehouse.png" alt="Steel Warehouse" />
-                  {/* Galvanized sheets — left rack area */}
-                  <LookbookPin top="40%" left="12%" dropstart={false} product={{
-                    slug: 'gc-sheets', name: 'GC Sheet – Galvanized Corrugated', img: CDN('galvanized-corrugated-sheets7d36.jpg'),
-                    price: 'Price on Request', note: 'Min. Order: 500 kg',
+                  <img className="img-banner" loading="lazy" width="1920" height="640" src="/lookbook-steel-site.png" alt="Steel Construction Site" />
+                  <LookbookPin top="38%" left="42%" dropstart={false} product={{
+                    slug: 'galvanized-corrugated-sheets', name: 'Galvanized Corrugated Sheets',
+                    img: CDN('galvanized-corrugated-sheets7d36.jpg'), price: 'Price on Request', note: 'Min. Order: 500 kg',
                   }} />
-                  {/* Colour coils — center floor where colorful coils are */}
-                  <LookbookPin top="62%" left="52%" dropstart={false} product={{
-                    slug: 'ppgl-colour-coils', name: 'PPGL Colour Coated Coil', img: CDN('Color-Coated-Coilsb58b.jpg'),
-                    price: 'Price on Request', note: 'Bulk Rate Available',
+                  <LookbookPin top="20%" left="58%" dropstart={true} product={{
+                    slug: 'steel-decking-sheets', name: 'Steel Decking Sheets',
+                    img: CDN('decking-sheets-17e37.jpg'), price: 'Price on Request', note: 'Custom Sizes',
                   }} />
-                  {/* PUF Panels — right side near the white insulated panels */}
-                  <LookbookPin top="38%" left="85%" dropstart={true} product={{
-                    slug: 'puf-panels', name: 'PUF Panel – 40mm Insulated', img: CDN('PUF-Panels8be3.png'),
-                    price: 'Price on Request', note: 'Custom Cut Available',
+                  <LookbookPin top="55%" left="88%" dropstart={true} product={{
+                    slug: 'puf-sandwich-panels', name: 'PUF Sandwich Panels',
+                    img: CDN('PUF-Panels8be3.png'), price: 'Price on Request', note: 'Custom Cut Available',
+                  }} />
+                  <LookbookPin top="28%" left="20%" dropstart={false} product={{
+                    slug: 'upvc-roofing-sheets', name: 'UPVC Roofing Sheets',
+                    img: CDN('UPVC-Sheet46e3.png'), price: 'Price on Request', note: 'Lightweight & Durable',
+                  }} />
+                  <LookbookPin top="30%" left="33%" dropstart={false} product={{
+                    slug: 'polycarbonate-roofing-sheets', name: 'Polycarbonate Roofing Sheets',
+                    img: CDN('polycarbonate-sheets-1b014.jpg'), price: 'Price on Request', note: 'UV Protected',
+                  }} />
+                  <LookbookPin top="52%" left="12%" dropstart={false} product={{
+                    slug: 'z-c-purlin', name: 'Z & C Purlin',
+                    img: CDN('purlinc517.jpg'), price: 'Price on Request', note: 'Custom Lengths',
+                  }} />
+                  <LookbookPin top="46%" left="52%" dropstart={false} product={{
+                    slug: 'roofing-screws', name: 'Roofing Screws',
+                    img: CDN('screws1580.jpg'), price: 'Price on Request', note: 'Self-Drilling',
+                  }} />
+                  <LookbookPin top="22%" left="74%" dropstart={true} product={{
+                    slug: 'turbo-ventilator', name: 'Turbo Ventilator',
+                    img: CDN('Turbo-Fan12e6.jpg'), price: 'Price on Request', note: 'Wind Driven',
+                  }} />
+                  <LookbookPin top="62%" left="35%" dropstart={false} product={{
+                    slug: 'roofing-accessories', name: 'Roofing Accessories',
+                    img: CDN('roofing-accessories-types0572.jpg'), price: 'Price on Request', note: 'Full Range Available',
                   }} />
                 </div>
               </SwiperSlide>
             </Swiper>
 
-            {/* Shop The Look box — absolutely overlaps bottom-right of image (exact Amerce style) */}
+            {/* Shop The Look box — absolutely overlaps bottom-right */}
             <div className="box-nav-pag" style={{
               position: 'absolute', bottom: '24px', right: '24px', zIndex: 10,
               background: '#fff', borderRadius: '12px', padding: '16px 20px',
@@ -643,53 +674,53 @@ export default function Home() {
             <p className="s-desc text-body-1 cl-text-2">Trusted by hundreds of builders, contractors and steel distributors across Tamil Nadu.</p>
           </div>
           <div ref={testimonialsSliderRef} style={{ overflow: 'hidden' }}>
-          <Swiper
-            modules={[Autoplay, Pagination]}
-            loop={true}
-            autoplay={false}
-            onSwiper={(swiper) => { testimonialsSwiperRef.current = swiper }}
-            pagination={{ clickable: true }}
-            breakpoints={{
-              0:    { slidesPerView: 1, spaceBetween: 16 },
-              768:  { slidesPerView: 2, spaceBetween: 20 },
-              1200: { slidesPerView: 3, spaceBetween: 24 },
-            }}
-            className="tf-swiper"
-            style={{ paddingBottom: '40px', marginTop: '32px' }}
-          >
-            {TESTIMONIALS.map((t, idx) => (
-              <SwiperSlide key={idx}>
-                <div className="testimonial-v01 style-2 type-3">
-                  <div className="tes-content">
-                    <div className="star-wrap d-flex align-items-center">
-                      <i className="icon icon-Star fs-24"></i>
-                      <i className="icon icon-Star fs-24"></i>
-                      <i className="icon icon-Star fs-24"></i>
-                      <i className="icon icon-Star fs-24"></i>
-                      <i className="icon icon-Star fs-24"></i>
-                    </div>
-                    <div className="tes_author" style={{ margin: '12px 0 8px' }}>
-                      <div className="h6 author-name">{t.name}</div>
-                      <div className="author-verified">
-                        <i className="icon icon-CheckCircle1"></i>
-                        <span className="text cl-text-2">{t.company}</span>
+            <Swiper
+              modules={[Autoplay, Pagination]}
+              loop={true}
+              autoplay={false}
+              onSwiper={(swiper) => { testimonialsSwiperRef.current = swiper }}
+              pagination={{ clickable: true }}
+              breakpoints={{
+                0: { slidesPerView: 1, spaceBetween: 16 },
+                768: { slidesPerView: 2, spaceBetween: 20 },
+                1200: { slidesPerView: 3, spaceBetween: 24 },
+              }}
+              className="tf-swiper"
+              style={{ paddingBottom: '40px', marginTop: '32px' }}
+            >
+              {TESTIMONIALS.map((t, idx) => (
+                <SwiperSlide key={idx}>
+                  <div className="testimonial-v01 style-2 type-3">
+                    <div className="tes-content">
+                      <div className="star-wrap d-flex align-items-center">
+                        <i className="icon icon-Star fs-24"></i>
+                        <i className="icon icon-Star fs-24"></i>
+                        <i className="icon icon-Star fs-24"></i>
+                        <i className="icon icon-Star fs-24"></i>
+                        <i className="icon icon-Star fs-24"></i>
                       </div>
-                    </div>
-                    <p className="tes_text h6 fw-medium text-capitalize">{t.text}</p>
-                    <div className="tes_product" style={{ marginTop: '16px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-                      <div className="product-image">
-                        <img loading="lazy" width="60" height="60" src={t.productImg} alt={t.product} style={{ borderRadius: '8px', objectFit: 'cover' }} />
+                      <div className="tes_author" style={{ margin: '12px 0 8px' }}>
+                        <div className="h6 author-name">{t.name}</div>
+                        <div className="author-verified">
+                          <i className="icon icon-CheckCircle1"></i>
+                          <span className="text cl-text-2">{t.company}</span>
+                        </div>
                       </div>
-                      <div className="product-infor">
-                        <Link to="/products/flat-products" className="prd_name link fw-medium lh-24 text-line-clamp-1">{t.product}</Link>
-                        <p className="prd_price fw-semibold text-primary">Price on Request</p>
+                      <p className="tes_text h6 fw-medium text-capitalize">{t.text}</p>
+                      <div className="tes_product" style={{ marginTop: '16px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+                        <div className="product-image">
+                          <img loading="lazy" width="60" height="60" src={t.productImg} alt={t.product} style={{ borderRadius: '8px', objectFit: 'cover' }} />
+                        </div>
+                        <div className="product-infor">
+                          <Link to="/products/flat-products" className="prd_name link fw-medium lh-24 text-line-clamp-1">{t.product}</Link>
+                          <p className="prd_price fw-semibold text-primary">Price on Request</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         </div>
       </section>

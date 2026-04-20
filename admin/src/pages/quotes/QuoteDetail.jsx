@@ -5,14 +5,16 @@ import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 import Spinner from '../../components/ui/Spinner'
 
-const STATUSES = ['submitted', 'reviewed', 'confirmed', 'dispatched', 'cancelled']
+const STATUSES = ['submitted', 'reviewed', 'confirmed', 'payment_pending', 'paid', 'dispatched', 'cancelled']
 
 const STATUS_DOT = {
-  submitted:  '#F97316',
-  reviewed:   '#3B82F6',
-  confirmed:  '#8B5CF6',
-  dispatched: '#06B6D4',
-  cancelled:  '#EF4444',
+  submitted:       '#F97316',
+  reviewed:        '#3B82F6',
+  confirmed:       '#8B5CF6',
+  payment_pending: '#EAB308',
+  paid:            '#22C55E',
+  dispatched:      '#06B6D4',
+  cancelled:       '#EF4444',
 }
 
 const safeJson = (val) => {
@@ -122,12 +124,12 @@ export default function QuoteDetail() {
   const timeline = Array.isArray(quote.timeline) ? quote.timeline : (safeJson(quote.timeline) || [])
 
   const subtotal = items.reduce((s, it) => s + (Number(it.unit_price || 0) * Number(it.quantity || 0)), 0)
-  const gstPct   = Number(quote.gst_percent || 18)
+  const gstPct   = Number(quote.gst_percentage || 18)
   const gstAmt   = subtotal * gstPct / 100
   const grandTotal = subtotal + gstAmt
 
   const fmtAddr = addr
-    ? [addr.line1, addr.line2, addr.city, addr.state, addr.pincode].filter(Boolean).join(', ')
+    ? [addr.name, addr.address, addr.city, addr.state, addr.pincode].filter(Boolean).join(', ')
     : (quote.delivery_address || '—')
 
   return (

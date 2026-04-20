@@ -86,26 +86,6 @@ elseif ($segments[0] === 'quotes') {
     }
 }
 
-// One-time admin setup — DELETE this block after use
-// Access: GET /setup?key=sst_setup_2024
-elseif ($segments[0] === 'setup') {
-    $key = $_GET['key'] ?? '';
-    if ($key !== 'sst_setup_2024') respond(403, 'Forbidden');
-    require_once __DIR__ . '/../config/database.php';
-    $db   = Database::getInstance();
-    $email = 'admin@shunmugasteel.com';
-    $pass  = password_hash('Admin@2024', PASSWORD_BCRYPT, ['cost' => 12]);
-    $stmt  = $db->prepare('SELECT id FROM admins WHERE email = ?');
-    $stmt->execute([$email]);
-    if ($stmt->fetch()) {
-        $db->prepare('UPDATE admins SET password = ? WHERE email = ?')->execute([$pass, $email]);
-        respond(200, ['message' => 'Admin password reset', 'email' => $email, 'password' => 'Admin@2024']);
-    } else {
-        $db->prepare('INSERT INTO admins (name, email, password) VALUES (?, ?, ?)')->execute(['Shunmuga Admin', $email, $pass]);
-        respond(200, ['message' => 'Admin created', 'email' => $email, 'password' => 'Admin@2024']);
-    }
-}
-
 // Hero Slides — public read
 elseif ($segments[0] === 'hero-slides') {
     require_once __DIR__ . '/../config/database.php';

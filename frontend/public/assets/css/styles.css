@@ -4150,17 +4150,25 @@ header.header-sticky.tf-header-landing {
   position: relative;
   overflow: hidden;
 }
-.hover-img4 .img-style4:after {
+.hover-img4 .img-style4:after,
+.hover-img4 .img-style4:before {
   content: "";
   position: absolute;
-  width: 200%;
+  width: 220%;
   height: 0%;
   left: 50%;
-  top: 50%;
-  background-color: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%) rotate(-45deg);
   z-index: 1;
   pointer-events: none;
+}
+.hover-img4 .img-style4:after {
+  top: 25%;
+  background-color: rgba(255, 255, 255, 0.42);
+  transform: translate(-50%, -50%) rotate(20deg);
+}
+.hover-img4 .img-style4:before {
+  top: 75%;
+  background-color: rgba(255, 255, 255, 0.32);
+  transform: translate(-50%, -50%) rotate(20deg);
 }
 .hover-img4 .img-style4 img {
   width: 100%;
@@ -4169,8 +4177,13 @@ header.header-sticky.tf-header-landing {
   transition: all 1s;
 }
 .hover-img4:hover .img-style4:after {
-  height: 250%;
-  transition: all 600ms linear;
+  height: 38%;
+  transition: height 550ms ease, background-color 550ms linear;
+  background-color: transparent;
+}
+.hover-img4:hover .img-style4:before {
+  height: 38%;
+  transition: height 550ms ease 90ms, background-color 550ms linear 90ms;
   background-color: transparent;
 }
 .hover-img4:hover .img-style4 img {

@@ -6,7 +6,6 @@ import AdminLogin from './pages/AdminLogin'
 
 // Admin Pages — lazy loaded (code-split per route)
 const Dashboard   = lazy(() => import('./pages/Dashboard'))
-const HeroSlides  = lazy(() => import('./pages/HeroSlides'))
 const Categories  = lazy(() => import('./pages/Categories'))
 const Products    = lazy(() => import('./pages/Products'))
 const QuoteLogs   = lazy(() => import('./pages/QuoteLogs'))
@@ -23,7 +22,6 @@ export default function App() {
           <Route path="/" element={<ProtectedAdmin><AdminLayout /></ProtectedAdmin>}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
-            <Route path="hero-slides" element={<HeroSlides />} />
             <Route path="categories" element={<Categories />} />
             <Route path="products" element={<Products />} />
             <Route path="quotes" element={<QuoteLogs />} />

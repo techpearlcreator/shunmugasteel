@@ -2,6 +2,8 @@ const STYLES = {
   submitted:       { background: '#dbeafe', color: '#1d4ed8' },
   reviewed:        { background: '#fef9c3', color: '#a16207' },
   confirmed:       { background: '#e0e7ff', color: '#4338ca' },
+  payment_pending: { background: '#fef9c3', color: '#b45309' },
+  paid:            { background: '#dcfce7', color: '#15803d' },
   dispatched:      { background: '#ccfbf1', color: '#0f766e' },
   cancelled:       { background: '#fee2e2', color: '#dc2626' },
   active:          { background: '#dcfce7', color: '#15803d' },

@@ -5,10 +5,11 @@ import { getDashboard } from '../services/adminApi'
 import Badge from '../components/ui/Badge'
 import Spinner from '../components/ui/Spinner'
 
-const STATUS_ORDER = ['submitted', 'reviewed', 'confirmed', 'dispatched', 'cancelled']
+const STATUS_ORDER = ['submitted', 'reviewed', 'confirmed', 'payment_pending', 'paid', 'dispatched', 'cancelled']
 
 const STATUS_COLOR = {
   submitted: '#3B82F6', reviewed: '#EAB308', confirmed: '#8B5CF6',
+  payment_pending: '#F59E0B', paid: '#22C55E',
   dispatched: '#14B8A6', cancelled: '#EF4444',
 }
 

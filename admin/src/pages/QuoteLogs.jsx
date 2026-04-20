@@ -4,7 +4,7 @@ import { getQuotes } from '../services/adminApi'
 import Badge from '../components/ui/Badge'
 import Spinner from '../components/ui/Spinner'
 
-const STATUSES = ['', 'submitted', 'reviewed', 'confirmed', 'dispatched', 'cancelled']
+const STATUSES = ['', 'submitted', 'reviewed', 'confirmed', 'payment_pending', 'paid', 'dispatched', 'cancelled']
 
 
 const S = {
