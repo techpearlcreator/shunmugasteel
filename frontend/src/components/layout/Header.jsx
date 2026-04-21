@@ -1,361 +1,380 @@
-import { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useQuoteStore } from '../../store/quoteStore'
 import { LOGO_PATH } from '../../utils/cdn'
 import { productService } from '../../services/productService'
+import './Header.css'
 
-// ─── Static fallback (shown instantly, replaced when API responds) ───────────
+// ── Static fallback data ──────────────────────────────────────────────────────
 const STATIC_FLAT = [
-  { name: 'Hot Rolled Steel', slug: 'hr-coils-sheets' },
-  { name: 'Cold Rolled Steel', slug: 'cr-coils-sheets' },
-  { name: 'Galvanized Steel', slug: 'gp-sheets-coils' },
-  { name: 'GP Slitted Coil', slug: 'gp-slitted-coil' },
-  { name: 'CR Slitted Coil', slug: 'cr-slitted-coil' },
+  { name: 'Hot Rolled Steel',   slug: 'hr-coils-sheets' },
+  { name: 'Cold Rolled Steel',  slug: 'cr-coils-sheets' },
+  { name: 'Galvanized Steel',   slug: 'gp-sheets-coils' },
+  { name: 'GP Slitted Coil',    slug: 'gp-slitted-coil' },
+  { name: 'CR Slitted Coil',    slug: 'cr-slitted-coil' },
 ]
 const STATIC_ROOFING = [
   { name: 'Galvanized Corrugated Sheets', slug: 'gc-sheets' },
-  { name: 'Pre-painted Colour Coated', slug: 'ppgl-colour-coils' },
-  { name: 'Decking Sheets', slug: 'decking-sheets' },
-  { name: 'Purlin', slug: 'purlin' },
-  { name: 'PUF Panels', slug: 'puf-panels' },
-  { name: 'UPVC Sheets', slug: 'upvc-sheets' },
+  { name: 'Pre-painted Colour Coated',    slug: 'ppgl-colour-coils' },
+  { name: 'Decking Sheets',               slug: 'decking-sheets' },
+  { name: 'Purlin',                        slug: 'purlin' },
+  { name: 'PUF Panels',                   slug: 'puf-panels' },
+  { name: 'UPVC Sheets',                  slug: 'upvc-sheets' },
 ]
 const STATIC_ACCESSORIES = [
-  { name: 'Turbo Fans', slug: null },
-  { name: 'Screws', slug: null },
+  { name: 'Turbo Ventilators', slug: null },
+  { name: 'Roofing Screws',    slug: null },
 ]
 
-// Module-level cache — fetched once per browser session
+
 let _menuCache = null
 
-// ─── Section label component ──────────────────────────────────────────────────
-function SectionLabel({ children }) {
-  return (
-    <p style={{
-      fontSize: '10px', fontWeight: '700', letterSpacing: '1px',
-      textTransform: 'uppercase', color: '#2C3E50',
-      borderBottom: '2px solid #E67E22', paddingBottom: '8px', marginBottom: '10px',
-    }}>
-      {children}
-    </p>
-  )
-}
+// ── SVG Icons ─────────────────────────────────────────────────────────────────
+const IconUser = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+  </svg>
+)
+const IconLogout = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16 17 21 12 16 7" />
+    <line x1="21" y1="12" x2="9" y2="12" />
+  </svg>
+)
+const IconBag = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <path d="M16 10a4 4 0 0 1-8 0" />
+  </svg>
+)
 
 export default function Header() {
   const { isAuthenticated, user, logout } = useAuthStore()
-  const items = useQuoteStore((s) => s.items)
-  const navigate = useNavigate()
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const items     = useQuoteStore((s) => s.items)
+  const navigate  = useNavigate()
+  const location  = useLocation()
+  const glowRef   = useRef(null)
+
+  // Animation state
+  const [islandClass, setIslandClass] = useState('intro-circle')
+  // Hover expansion (separate from animation class)
+  const [isExpanded,   setIsExpanded]   = useState(false)
+  // Desktop dropdown: 'flat' | 'roofing' | 'acc' | null
+  const [openDrop, setOpenDrop] = useState(null)
+  // Mobile panel
+  const [mobileOpen, setMobileOpen]   = useState(false)
+  // Mobile accordion: 'flat' | 'roofing' | 'acc' | null
+  const [mobileAcc,  setMobileAcc]    = useState(null)
 
   const [menuItems, setMenuItems] = useState({
-    flat: STATIC_FLAT,
-    roofing: STATIC_ROOFING,
+    flat:        STATIC_FLAT,
+    roofing:     STATIC_ROOFING,
     accessories: STATIC_ACCESSORIES,
   })
 
-  // Fetch live products from API (once per session via cache)
+  // ── Entrance animation (matches navbar.html JS sequence exactly) ──────────
+  useEffect(() => {
+    // 100ms: start ball bounce
+    const t1 = setTimeout(() => setIslandClass('intro-circle intro-bounce'), 100)
+    // 1500ms: expand to full pill (bounce animation is done at 1400ms)
+    const t2 = setTimeout(() => setIslandClass('intro-expand'), 1500)
+    // 2100ms: stagger-reveal nav content
+    const t3 = setTimeout(() => setIslandClass('intro-expand content-ready'), 2100)
+    // 4100ms: fade rainbow ring
+    const t4 = setTimeout(() => setIslandClass('intro-expand content-ready glow-fade'), 4100)
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4) }
+  }, [])
+
+  // ── Cursor glow ────────────────────────────────────────────────────────────
+  useEffect(() => {
+    const handler = (e) => {
+      if (glowRef.current) {
+        glowRef.current.style.left = e.clientX + 'px'
+        glowRef.current.style.top  = e.clientY + 'px'
+      }
+    }
+    document.addEventListener('mousemove', handler)
+    return () => document.removeEventListener('mousemove', handler)
+  }, [])
+
+  // ── API fetch (once per session via cache) ─────────────────────────────────
   useEffect(() => {
     if (_menuCache) { setMenuItems(_menuCache); return }
-
     const extract = (res) =>
       (res.data?.data?.products || res.data?.products || [])
         .map((p) => ({ name: p.name, slug: p.slug }))
-
     Promise.all([
       productService.getCategoryBySlug('flat-products'),
       productService.getCategoryBySlug('roofing-products'),
       productService.getCategoryBySlug('accessories'),
     ]).then(([flatRes, roofingRes, accRes]) => {
-      const flat = extract(flatRes).length ? extract(flatRes) : STATIC_FLAT
-      const roofing = extract(roofingRes).length ? extract(roofingRes) : STATIC_ROOFING
-      // Accessories always link to category page — keep static names, mark slug null
-      const accProducts = extract(accRes)
-      const accessories = accProducts.length
-        ? accProducts.map((p) => ({ name: p.name, slug: null }))
+      const flat      = extract(flatRes).length    ? extract(flatRes)    : STATIC_FLAT
+      const roofing   = extract(roofingRes).length ? extract(roofingRes) : STATIC_ROOFING
+      const accRaw    = extract(accRes)
+      const accessories = accRaw.length
+        ? accRaw.map((p) => ({ name: p.name, slug: null }))
         : STATIC_ACCESSORIES
-
       _menuCache = { flat, roofing, accessories }
       setMenuItems(_menuCache)
-    }).catch(() => { }) // silently keep static fallback on API error
+    }).catch(() => {})
   }, [])
 
-  function handleLogout() {
-    logout()
-    navigate('/')
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function handleLogout() { logout(); navigate('/') }
+
+  function productLink(item) {
+    return item.slug ? `/product/${item.slug}` : '/products/accessories'
   }
 
-  // Desktop product link: accessories → category page, others → product page
-  function productLink(item, isAccessory = false) {
-    return isAccessory ? '/products/accessories' : `/product/${item.slug}`
+  // Magnetic ripple: update --mx / --my CSS vars on each nav link
+  function handleMM(e) {
+    const r  = e.currentTarget.getBoundingClientRect()
+    const mx = ((e.clientX - r.left)  / r.width  * 100).toFixed(1) + '%'
+    const my = ((e.clientY - r.top)   / r.height * 100).toFixed(1) + '%'
+    e.currentTarget.style.setProperty('--mx', mx)
+    e.currentTarget.style.setProperty('--my', my)
+  }
+
+  function isActive(path) { return location.pathname === path }
+
+  // ── Desktop dropdown handlers ──────────────────────────────────────────────
+  function onDropEnter(name) { setOpenDrop(name); setIsExpanded(true) }
+  function onDropLeave()     { setOpenDrop(null); setIsExpanded(false) }
+
+  // ── Island hover ──────────────────────────────────────────────────────────
+  function onIslandEnter() { setIsExpanded(true) }
+  function onIslandLeave() { if (!openDrop) setIsExpanded(false) }
+
+  // ── Mobile handlers ────────────────────────────────────────────────────────
+  function toggleMobile() { setMobileOpen((v) => !v) }
+  function closeMobile()  { setMobileOpen(false); setMobileAcc(null) }
+  function toggleMobileAcc(key) {
+    setMobileAcc((prev) => (prev === key ? null : key))
+  }
+
+  // ── Compose island className ───────────────────────────────────────────────
+  const isAnimating = islandClass.includes('intro-circle') || islandClass.includes('intro-bounce')
+  const fullClass = [
+    islandClass,
+    !isAnimating && isExpanded ? 'expanded' : '',
+    mobileOpen ? 'mobile-open' : '',
+  ].filter(Boolean).join(' ')
+
+  // ── Dropdown renderers ─────────────────────────────────────────────────────
+  function renderDropdown(key, icon, title, badge, items) {
+    return (
+      <li
+        className={`di-nav-item${openDrop === key ? ' open' : ''}`}
+        onMouseEnter={() => onDropEnter(key)}
+        onMouseLeave={onDropLeave}
+      >
+        <button className={`di-nav-link${isActive('/products/' + key + '-products') ? ' active' : ''}`} onMouseMove={handleMM}>
+          {title} <span className="di-chevron" aria-hidden="true" />
+        </button>
+        <div className="di-slim-dropdown" role="menu">
+          <div className="di-dd-header">
+            <span className="di-dd-icon">{icon}</span>
+            <span className="di-dd-title">{title}</span>
+            {badge && <span className="di-dd-badge">{badge}</span>}
+          </div>
+          {items.map((item) => (
+            <Link
+              key={item.slug || item.name}
+              to={productLink(item)}
+              className="di-mega-link"
+              role="menuitem"
+              onClick={() => setOpenDrop(null)}
+            >
+              <span className="di-mega-link-label">{item.name}</span>
+            </Link>
+          ))}
+        </div>
+      </li>
+    )
   }
 
   return (
     <>
-      {/* Topbar }
-      <div className="tf-topbar bg-dark">
-        <div className="container">
-          <div className="text-center">
-            {/* <p className="text-white mb-0" style={{ fontSize: '13px', padding: '8px 0' }}>
-              Most Trusted Steel Supplier Since 1976 &nbsp;|&nbsp; Chennai &middot; Erode &nbsp;|&nbsp;
-              <a href="tel:+917200240007" className="text-white" style={{ textDecoration: 'none' }}>
-                +91-7200240007
-              </a>
-            </p> *
-          </div>
-        </div>
-      </div >
-      */}
+      {/* Cursor glow */}
+      <div ref={glowRef} id="di-cursor-glow" aria-hidden="true" />
 
-      {/* Header */}
-      <header className="tf-header">
-        <div className="br-line fake-class bottom-0"></div>
-        <div className="container-full">
-          <div className="header-inner">
-
-            {/* Mobile menu toggle */}
-            <div className="box-open-menu-mobile d-xl-none">
-              <button
-                className="btn-open-menu"
-                onClick={() => setMobileOpen(true)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
-              >
-                <i className="icon icon-List"></i>
-              </button>
-            </div>
+      {/* Dynamic Island */}
+      <div id="island-wrapper" role="banner">
+        <div
+          id="island"
+          className={fullClass}
+          onMouseEnter={onIslandEnter}
+          onMouseLeave={onIslandLeave}
+        >
+          {/* ── Navbar Row ── */}
+          <nav id="di-navbar-row" aria-label="Primary navigation">
 
             {/* Logo */}
-            <div className="header-left">
-              <Link to="/" className="logo-site">
-                <img
-                  loading="lazy"
-                  width="150"
-                  height="30"
-                  src={LOGO_PATH}
-                  alt="Shunmuga Steel Traders"
-                  onError={(e) => { e.target.style.display = 'none' }}
-                />
-                <span className="steel-tag">TRADERS &middot; EST. 1976</span>
-              </Link>
-            </div>
+            <Link to="/" className="di-logo di-nav-item" aria-label="Shunmuga Steel Home" onClick={closeMobile}>
+              <img
+                src={LOGO_PATH}
+                alt="Shunmuga Steel Traders"
+                className="di-logo-img"
+                loading="eager"
+                onError={(e) => { e.target.style.display = 'none' }}
+              />
+            </Link>
 
-            {/* Desktop Navigation */}
-            <div className="header-center d-none d-xl-block">
-              <nav className="box-navigation">
-                <ul className="box-nav-menu">
-                  <li className="menu-item">
-                    <Link to="/" className="item-link">
-                      <span className="text cus-text">Home</span>
-                    </Link>
-                  </li>
+            {/* Desktop nav */}
+            <ul id="di-nav-links" role="menubar">
+              <li className="di-nav-item">
+                <Link
+                  to="/"
+                  className={`di-nav-link${isActive('/') ? ' active' : ''}`}
+                  onMouseMove={handleMM}
+                >
+                  Home
+                </Link>
+              </li>
 
-                  {/* Products mega-menu */}
-                  <li className="menu-item position-relative">
-                    <Link to="/products/flat-products" className="item-link">
-                      <span className="text cus-text">Products</span>
-                      <i className="icon icon-CaretDown"></i>
-                    </Link>
-                    <div className="sub-menu mega-menu-item" style={{ minWidth: '720px', left: '50%', transform: 'translateX(-50%)' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', padding: '20px 8px' }}>
+              {renderDropdown('flat',    '🔩', 'Flat Products', 'B2B',       menuItems.flat)}
+              {renderDropdown('roofing', '🏠', 'Roofing',       'B2C + B2B', menuItems.roofing)}
+              {renderDropdown('acc',     '🔧', 'Accessories',   null,        menuItems.accessories)}
 
-                        {/* Flat Products */}
-                        <div style={{ padding: '0 16px' }}>
-                          <SectionLabel>Flat Products <span style={{ color: '#888', fontWeight: 400 }}>(B2B)</span></SectionLabel>
-                          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                            {menuItems.flat.map((p) => (
-                              <li key={p.slug || p.name}>
-                                <Link to={productLink(p)} className="sub-menu_link has-text">
-                                  <span className="cus-text">{p.name}</span>
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        {/* Roofing */}
-                        <div style={{ padding: '0 16px', borderLeft: '1px solid #f0f0f0' }}>
-                          <SectionLabel>Roofing <span style={{ color: '#888', fontWeight: 400 }}>(B2C + B2B)</span></SectionLabel>
-                          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                            {menuItems.roofing.map((p) => (
-                              <li key={p.slug || p.name}>
-                                <Link to={productLink(p)} className="sub-menu_link has-text">
-                                  <span className="cus-text">{p.name}</span>
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-
-                        {/* Accessories */}
-                        <div style={{ padding: '0 16px', borderLeft: '1px solid #f0f0f0' }}>
-                          <SectionLabel>Accessories</SectionLabel>
-                          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                            {menuItems.accessories.map((p) => (
-                              <li key={p.name}>
-                                <Link to="/products/accessories" className="sub-menu_link has-text">
-                                  <span className="cus-text">{p.name}</span>
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-
-                      </div>
-                    </div>
-                  </li>
-
-                  <li className="menu-item">
-                    <Link to="/brands" className="item-link">
-                      <span className="text cus-text">Brands</span>
-                    </Link>
-                  </li>
-                  <li className="menu-item">
-                    <Link to="/about" className="item-link">
-                      <span className="text cus-text">About</span>
-                    </Link>
-                  </li>
-                  <li className="menu-item">
-                    <Link to="/contact" className="item-link">
-                      <span className="text cus-text">Contact</span>
-                    </Link>
-                  </li>
-                  {isAuthenticated && (
-                    <li className="menu-item">
-                      <Link to="/my-quotes" className="item-link">
-                        <span className="text cus-text">My Quotes</span>
-                      </Link>
-                    </li>
-                  )}
-                </ul>
-              </nav>
-            </div>
-
-            {/* Right Icons */}
-            <div className="header-right">
-              <ul className="nav-icon-list">
-                {isAuthenticated ? (
-                  <>
-                    <li className="d-none d-sm-block">
-                      <Link to="/my-quotes" className="nav-icon-item link" title="My Quotes">
-                        <i className="icon icon-ClipboardText"></i>
-                      </Link>
-                    </li>
-                    <li className="d-none d-sm-block">
-                      <Link to="/profile" className="nav-icon-item link" title={user?.name || 'Profile'}>
-                        <i className="icon icon-User"></i>
-                      </Link>
-                    </li>
-                    <li>
-                      <button
-                        onClick={handleLogout}
-                        className="nav-icon-item link"
-                        title="Logout"
-                        style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-                      >
-                        <i className="icon icon-SignOut"></i>
-                      </button>
-                    </li>
-                  </>
-                ) : (
-                  <li>
-                    <Link to="/login" className="nav-icon-item link" title="Login">
-                      <i className="icon icon-User"></i>
-                    </Link>
-                  </li>
-                )}
-                <li>
-                  <Link to="/quote-basket" className="nav-icon-item link shop-cart" title="Quote Basket">
-                    <i className="icon icon-Handbag"></i>
-                    {items.length > 0 && <span className="count">{items.length}</span>}
-                  </Link>
+              <li className="di-nav-item">
+                <Link to="/about" className={`di-nav-link${isActive('/about') ? ' active' : ''}`} onMouseMove={handleMM}>About</Link>
+              </li>
+              <li className="di-nav-item">
+                <Link to="/contact" className={`di-nav-link${isActive('/contact') ? ' active' : ''}`} onMouseMove={handleMM}>Contact</Link>
+              </li>
+              {isAuthenticated && (
+                <li className="di-nav-item">
+                  <Link to="/my-quotes" className={`di-nav-link${isActive('/my-quotes') ? ' active' : ''}`} onMouseMove={handleMM}>My Quotes</Link>
                 </li>
-              </ul>
-            </div>
+              )}
+            </ul>
 
-          </div>
-        </div>
-      </header>
-
-      {/* Mobile Menu Overlay */}
-      {mobileOpen && (
-        <div className="mobile-menu-overlay">
-          <div className="mobile-menu-panel">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <Link to="/" className="logo-site" onClick={() => setMobileOpen(false)}>
-                <img src={LOGO_PATH} width="120" height="26" alt="Shunmuga Steel" onError={(e) => { e.target.style.display = 'none' }} />
-              </Link>
-              <button
-                onClick={() => setMobileOpen(false)}
-                style={{ background: 'none', border: 'none', fontSize: '22px', cursor: 'pointer', color: '#101010' }}
-              >
-                <i className="icon icon-Close"></i>
-              </button>
-            </div>
-
-            <Link to="/" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Home</Link>
-
-            {/* Flat Products */}
-            <p style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', color: '#E67E22', marginTop: '12px', marginBottom: '4px', padding: '0' }}>
-              Flat Products (B2B)
-            </p>
-            {menuItems.flat.map((p) => (
-              <Link key={p.slug || p.name} to={productLink(p)} className="mobile-nav-link" style={{ paddingLeft: '12px' }} onClick={() => setMobileOpen(false)}>
-                {p.name}
-              </Link>
-            ))}
-
-            {/* Roofing */}
-            <p style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', color: '#E67E22', marginTop: '12px', marginBottom: '4px', padding: '0' }}>
-              Roofing (B2C + B2B)
-            </p>
-            {menuItems.roofing.map((p) => (
-              <Link key={p.slug || p.name} to={productLink(p)} className="mobile-nav-link" style={{ paddingLeft: '12px' }} onClick={() => setMobileOpen(false)}>
-                {p.name}
-              </Link>
-            ))}
-
-            {/* Accessories */}
-            <p style={{ fontSize: '10px', fontWeight: '700', letterSpacing: '1px', textTransform: 'uppercase', color: '#E67E22', marginTop: '12px', marginBottom: '4px', padding: '0' }}>
-              Accessories
-            </p>
-            {menuItems.accessories.map((p) => (
-              <Link key={p.name} to="/products/accessories" className="mobile-nav-link" style={{ paddingLeft: '12px' }} onClick={() => setMobileOpen(false)}>
-                {p.name}
-              </Link>
-            ))}
-
-            <Link to="/brands" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Brands</Link>
-            <Link to="/about" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>About Us</Link>
-            <Link to="/contact" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Contact</Link>
-
-            <div style={{ marginTop: '20px', borderTop: '1px solid #f0f0f0', paddingTop: '20px' }}>
+            {/* Right icon buttons */}
+            <div className="di-nav-icons">
               {isAuthenticated ? (
                 <>
-                  <Link to="/my-quotes" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>My Quotes</Link>
-                  <Link to="/profile" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Profile</Link>
-                  <button
-                    onClick={() => { handleLogout(); setMobileOpen(false) }}
-                    style={{ background: 'none', border: 'none', padding: '12px 0', fontSize: '15px', cursor: 'pointer', color: '#E67E22', display: 'block' }}
-                  >
-                    Logout
+                  <Link to="/profile" className="di-icon-btn" title={user?.name || 'Profile'}>
+                    <IconUser />
+                  </Link>
+                  <button onClick={handleLogout} className="di-icon-btn" title="Logout">
+                    <IconLogout />
                   </button>
                 </>
               ) : (
-                <>
-                  <Link to="/login" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Login</Link>
-                  <Link to="/register" className="mobile-nav-link" onClick={() => setMobileOpen(false)}>Register</Link>
-                </>
+                <Link to="/login" className="di-icon-btn" title="Login">
+                  <IconUser />
+                </Link>
               )}
-            </div>
-            <div style={{ marginTop: '20px' }}>
-              <Link to="/quote-basket" className="tf-btn btn-fill w-100 text-center" onClick={() => setMobileOpen(false)}>
-                Quote Basket {items.length > 0 && `(${items.length})`}
+              <Link to="/quote-basket" className="di-icon-btn" title="Quote Basket">
+                <IconBag />
+                {items.length > 0 && <span className="di-cart-badge">{items.length}</span>}
               </Link>
+              <button
+                className={`di-hamburger${mobileOpen ? ' open' : ''}`}
+                onClick={toggleMobile}
+                aria-label="Toggle menu"
+                aria-expanded={mobileOpen}
+              >
+                <span /><span /><span />
+              </button>
+            </div>
+          </nav>
+
+          {/* ── Mobile Panel ── */}
+          <div id="di-mobile-panel" role="navigation" aria-label="Mobile navigation">
+            <div className="di-mobile-inner">
+
+              <Link to="/" className="di-mobile-link" onClick={closeMobile}>Home</Link>
+
+              {/* Flat Products accordion */}
+              <button
+                className={`di-mobile-link${mobileAcc === 'flat' ? ' open' : ''}`}
+                onClick={() => toggleMobileAcc('flat')}
+                aria-expanded={mobileAcc === 'flat'}
+              >
+                🔩 Flat Products
+                <span className="di-m-chev">▼</span>
+              </button>
+              <div className={`di-mobile-sub${mobileAcc === 'flat' ? ' open' : ''}`}>
+                <span className="di-msub-title">B2B</span>
+                {menuItems.flat.map((p) => (
+                  <Link key={p.slug || p.name} to={productLink(p)} className="di-msub-link" onClick={closeMobile}>{p.name}</Link>
+                ))}
+              </div>
+
+              {/* Roofing accordion */}
+              <button
+                className={`di-mobile-link${mobileAcc === 'roofing' ? ' open' : ''}`}
+                onClick={() => toggleMobileAcc('roofing')}
+                aria-expanded={mobileAcc === 'roofing'}
+              >
+                🏠 Roofing
+                <span className="di-m-chev">▼</span>
+              </button>
+              <div className={`di-mobile-sub${mobileAcc === 'roofing' ? ' open' : ''}`}>
+                <span className="di-msub-title">B2C + B2B</span>
+                {menuItems.roofing.map((p) => (
+                  <Link key={p.slug || p.name} to={productLink(p)} className="di-msub-link" onClick={closeMobile}>{p.name}</Link>
+                ))}
+              </div>
+
+              {/* Accessories accordion */}
+              <button
+                className={`di-mobile-link${mobileAcc === 'acc' ? ' open' : ''}`}
+                onClick={() => toggleMobileAcc('acc')}
+                aria-expanded={mobileAcc === 'acc'}
+              >
+                🔧 Accessories
+                <span className="di-m-chev">▼</span>
+              </button>
+              <div className={`di-mobile-sub${mobileAcc === 'acc' ? ' open' : ''}`}>
+                {menuItems.accessories.map((p) => (
+                  <Link key={p.name} to="/products/accessories" className="di-msub-link" onClick={closeMobile}>{p.name}</Link>
+                ))}
+              </div>
+
+              <Link to="/about"   className="di-mobile-link" onClick={closeMobile}>About</Link>
+              <Link to="/contact" className="di-mobile-link" onClick={closeMobile}>Contact</Link>
+
+              {/* Auth + basket */}
+              <div className="di-mobile-section">
+                {isAuthenticated ? (
+                  <>
+                    <Link to="/my-quotes" className="di-mobile-link" onClick={closeMobile}>My Quotes</Link>
+                    <Link to="/profile"   className="di-mobile-link" onClick={closeMobile}>Profile</Link>
+                    <button
+                      onClick={() => { handleLogout(); closeMobile() }}
+                      className="di-mobile-link"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/login"    className="di-mobile-link" onClick={closeMobile}>Login</Link>
+                    <Link to="/register" className="di-mobile-link" onClick={closeMobile}>Register</Link>
+                  </>
+                )}
+                <Link
+                  to="/quote-basket"
+                  className="di-mobile-link"
+                  onClick={closeMobile}
+                  style={{ color: 'var(--di-accent)', fontWeight: 600 }}
+                >
+                  Quote Basket {items.length > 0 && `(${items.length})`}
+                </Link>
+              </div>
+
             </div>
           </div>
-          <div className="mobile-menu-backdrop" onClick={() => setMobileOpen(false)}></div>
+          {/* ── end mobile panel ── */}
+
         </div>
-      )}
+      </div>
     </>
   )
 }
