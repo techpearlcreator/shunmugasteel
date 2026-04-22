@@ -54,7 +54,7 @@ export default function BrandsPage() {
   return (
     <div>
       {/* Header banner */}
-      <div className="relative py-10 md:py-16 overflow-hidden" style={{ background: 'linear-gradient(135deg, #1A252F 0%, #2C3E50 100%)' }}>
+      <div className="relative pb-10 md:pb-16 overflow-hidden" style={{ background: '#000', paddingTop: '110px' }}>
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #E67E22 0, #E67E22 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }} />
         <div className="relative max-w-7xl mx-auto px-4 text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Our Brand Partners</h1>

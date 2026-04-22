@@ -5,8 +5,8 @@ import { Autoplay, Pagination, Navigation } from 'swiper/modules'
 import { useQuoteStore } from '../store/quoteStore'
 import HeroBanner from '@/components/hero-banner'
 
-/* ─── CDN image helper ─── */
-const CDN = (f) => `/cdn/${f}`
+/* ─── CDN image helper — auto-serves .webp ─── */
+const CDN = (f) => `/cdn/${f.replace(/\.(jpg|jpeg|png)$/i, '.webp')}`
 
 /* ─── Countdown hook ─── */
 function useCountdown(targetDate) {
@@ -500,7 +500,7 @@ export default function Home() {
         <div className="container flat-spacing">
           <div className="banner-countdown-v01 style-4">
             <div className="banner-img">
-              <img className="img-cover" width="1410" height="180" loading="lazy" src="/offer-banner-warehouse.png" alt="banner" />
+              <img className="img-cover" width="1410" height="180" loading="lazy" src="/offer-banner-warehouse.webp" alt="banner" />
             </div>
             <div className="content">
               <div className="col-left">
@@ -541,10 +541,62 @@ export default function Home() {
               onSlideChange={(swiper) => setLbSlide(swiper.realIndex + 1)}
               className="tf-swiper swiper-type-number rounded-top-20"
             >
-              {/* ── Slide 1 — Storage Yard / Heavy Coils ── */}
+              {/* ── Slide 1 — Construction Site / Roofing ── */}
               <SwiperSlide>
                 <div className="banner-lookbook wrap-lookbook_hover style-2">
-                  <img className="img-banner" loading="lazy" width="1920" height="640" src="/lookbook-steel-warehouse.png" alt="Steel Storage Yard" />
+                  <img className="img-banner" loading="lazy" width="1920" height="640" src="/lookbook-steel-site.webp" alt="Steel Construction Site" />
+                  {/* Center roof — corrugated sheets being laid by workers */}
+                  <LookbookPin top="32%" left="45%" dropstart={false} product={{
+                    slug: 'galvanized-corrugated-sheets', name: 'Galvanized Corrugated Sheets',
+                    img: CDN('galvanized-corrugated-sheets7d36.jpg'), price: 'Price on Request', note: 'Min. Order: 500 kg',
+                  }} />
+                  {/* Upper center-right — sheet being placed on roof */}
+                  <LookbookPin top="24%" left="57%" dropstart={true} product={{
+                    slug: 'steel-decking-sheets', name: 'Steel Decking Sheets',
+                    img: CDN('decking-sheets-17e37.jpg'), price: 'Price on Request', note: 'Custom Sizes',
+                  }} />
+                  {/* Right side — PUF insulated panels (yellow/sandwich panels) */}
+                  <LookbookPin top="36%" left="78%" dropstart={true} product={{
+                    slug: 'puf-sandwich-panels', name: 'PUF Sandwich Panels',
+                    img: CDN('PUF-Panels8be3.png'), price: 'Price on Request', note: 'Custom Cut Available',
+                  }} />
+                  {/* Bottom left — stacked sheets on ground */}
+                  <LookbookPin top="62%" left="80%" dropstart={false} product={{
+                    slug: 'upvc-roofing-sheets', name: 'UPVC Roofing Sheets',
+                    img: CDN('UPVC-Sheet46e3.png'), price: 'Price on Request', note: 'Lightweight & Durable',
+                  }} />
+                  {/* Left mid — worker handling sheets on frame */}
+                  <LookbookPin top="42%" left="38%" dropstart={false} product={{
+                    slug: 'polycarbonate-roofing-sheets', name: 'Polycarbonate Roofing Sheets',
+                    img: CDN('polycarbonate-sheets-1b014.jpg'), price: 'Price on Request', note: 'UV Protected',
+                  }} />
+                  {/* Foreground — steel structural frame / purlins */}
+                  <LookbookPin top="70%" left="30%" dropstart={false} product={{
+                    slug: 'z-c-purlin', name: 'Z & C Purlin',
+                    img: CDN('purlinc517.jpg'), price: 'Price on Request', note: 'Custom Lengths',
+                  }} />
+                  {/* Center — worker fastening sheets */}
+                  <LookbookPin top="52%" left="52%" dropstart={false} product={{
+                    slug: 'roofing-screws', name: 'Roofing Screws',
+                    img: CDN('screws1580.jpg'), price: 'Price on Request', note: 'Self-Drilling',
+                  }} />
+                  {/* Upper right — turbo ventilator on roof ridge */}
+                  <LookbookPin top="17%" left="78%" dropstart={true} product={{
+                    slug: 'turbo-ventilator', name: 'Turbo Ventilator',
+                    img: CDN('Turbo-Fan12e6.jpg'), price: 'Price on Request', note: 'Wind Driven',
+                  }} />
+                  {/* Lower right — accessories area */}
+                  <LookbookPin top="40%" left="62%" dropstart={true} product={{
+                    slug: 'roofing-accessories', name: 'Roofing Accessories',
+                    img: CDN('roofing-accessories-types0572.jpg'), price: 'Price on Request', note: 'Full Range Available',
+                  }} />
+                </div>
+              </SwiperSlide>
+
+              {/* ── Slide 2 — Storage Yard / Heavy Coils ── */}
+              <SwiperSlide>
+                <div className="banner-lookbook wrap-lookbook_hover style-2">
+                  <img className="img-banner" loading="lazy" width="1920" height="640" src="/lookbook-steel-warehouse.webp" alt="Steel Storage Yard" />
                   <LookbookPin top="62%" left="14%" dropstart={false} product={{
                     slug: 'hot-rolled-coils-sheets', name: 'Hot Rolled Coils & Sheets',
                     img: CDN('hot-rolled-coils-sheets-bannerb1f5.jpg'), price: 'Price on Request', note: 'Bulk Rate Available',
@@ -568,49 +620,6 @@ export default function Home() {
                   <LookbookPin top="72%" left="88%" dropstart={true} product={{
                     slug: 'cr-slitted-coils', name: 'CR Slitted Coils',
                     img: CDN('0-25mm-cold-rolled-coil-1000x1000cf88.jpg'), price: 'Price on Request', note: 'Custom Slit Width',
-                  }} />
-                </div>
-              </SwiperSlide>
-
-              {/* ── Slide 2 — Construction Site / Roofing ── */}
-              <SwiperSlide>
-                <div className="banner-lookbook wrap-lookbook_hover style-2">
-                  <img className="img-banner" loading="lazy" width="1920" height="640" src="/lookbook-steel-site.png" alt="Steel Construction Site" />
-                  <LookbookPin top="38%" left="42%" dropstart={false} product={{
-                    slug: 'galvanized-corrugated-sheets', name: 'Galvanized Corrugated Sheets',
-                    img: CDN('galvanized-corrugated-sheets7d36.jpg'), price: 'Price on Request', note: 'Min. Order: 500 kg',
-                  }} />
-                  <LookbookPin top="20%" left="58%" dropstart={true} product={{
-                    slug: 'steel-decking-sheets', name: 'Steel Decking Sheets',
-                    img: CDN('decking-sheets-17e37.jpg'), price: 'Price on Request', note: 'Custom Sizes',
-                  }} />
-                  <LookbookPin top="55%" left="88%" dropstart={true} product={{
-                    slug: 'puf-sandwich-panels', name: 'PUF Sandwich Panels',
-                    img: CDN('PUF-Panels8be3.png'), price: 'Price on Request', note: 'Custom Cut Available',
-                  }} />
-                  <LookbookPin top="28%" left="20%" dropstart={false} product={{
-                    slug: 'upvc-roofing-sheets', name: 'UPVC Roofing Sheets',
-                    img: CDN('UPVC-Sheet46e3.png'), price: 'Price on Request', note: 'Lightweight & Durable',
-                  }} />
-                  <LookbookPin top="30%" left="33%" dropstart={false} product={{
-                    slug: 'polycarbonate-roofing-sheets', name: 'Polycarbonate Roofing Sheets',
-                    img: CDN('polycarbonate-sheets-1b014.jpg'), price: 'Price on Request', note: 'UV Protected',
-                  }} />
-                  <LookbookPin top="52%" left="12%" dropstart={false} product={{
-                    slug: 'z-c-purlin', name: 'Z & C Purlin',
-                    img: CDN('purlinc517.jpg'), price: 'Price on Request', note: 'Custom Lengths',
-                  }} />
-                  <LookbookPin top="46%" left="52%" dropstart={false} product={{
-                    slug: 'roofing-screws', name: 'Roofing Screws',
-                    img: CDN('screws1580.jpg'), price: 'Price on Request', note: 'Self-Drilling',
-                  }} />
-                  <LookbookPin top="22%" left="74%" dropstart={true} product={{
-                    slug: 'turbo-ventilator', name: 'Turbo Ventilator',
-                    img: CDN('Turbo-Fan12e6.jpg'), price: 'Price on Request', note: 'Wind Driven',
-                  }} />
-                  <LookbookPin top="62%" left="35%" dropstart={false} product={{
-                    slug: 'roofing-accessories', name: 'Roofing Accessories',
-                    img: CDN('roofing-accessories-types0572.jpg'), price: 'Price on Request', note: 'Full Range Available',
                   }} />
                 </div>
               </SwiperSlide>

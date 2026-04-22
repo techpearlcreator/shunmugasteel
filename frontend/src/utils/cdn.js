@@ -1,35 +1,35 @@
-// CDN base URL — images served from public/cdn/ (works in both dev and production)
 export const CDN = '/cdn'
-export const LOGO_PATH = '/logo/new-SS-logo.jpg'
+export const LOGO_PATH = '/logo/new-SS-logo.webp'
 
-export const cdnImg = (filename) => `${CDN}/${filename}`
+// Automatically serve .webp if a WebP version exists (all images have been converted)
+export const cdnImg = (filename) =>
+  `${CDN}/${filename.replace(/\.(jpg|jpeg|png)$/i, '.webp')}`
 
-// Product image map — maps product slugs to their CDN filenames
 export const PRODUCT_IMAGES = {
-  'hr-coils': 'hot-rolled-coils-sheets-bannerb1f5.jpg',
-  'hr-sheets': 'hot-rolled-coils-sheets-bannerc5c5.jpg',
-  'cr-coils': 'cold-rolled-steel072e.jpg',
-  'cr-sheets': 'cold-rolled-steel-12ba9.jpg',
-  'gp-sheets': 'galvanized-steel-sheets47fe.png',
-  'gp-coils': 'gpsheetcoilc6bd.jpg',
-  'gc-sheets': 'galvanized-corrugated-sheets7d36.jpg',
-  'ppgl-colour-coils': 'Color-Coated-Coilsb58b.jpg',
-  'colour-coils': 'color-coilb85d.png',
-  'gp-slitted-coil': 'gp-slit-coil-952cf2f.jpg',
-  'cr-slitted-coil': '0-25mm-cold-rolled-coil-1000x1000cf88.jpg',
-  'decking-sheets': 'decking-sheets-17e37.jpg',
-  'puf-panels': 'PUF-Panels8be3.png',
-  'upvc-sheets': 'UPVC-Sheet46e3.png',
-  'polycarbonate-sheets': 'polycarbonate-sheets-1b014.jpg',
-  'purlin': 'purlinc517.jpg',
-  'roofing-screws': 'screws1580.jpg',
-  'turbo-ventilator': 'Turbo-Fan12e6.jpg',
-  'roofing-accessories': 'roofing-accessories-types0572.jpg',
+  'hr-coils':             'hot-rolled-coils-sheets-bannerb1f5.webp',
+  'hr-sheets':            'hot-rolled-coils-sheets-bannerc5c5.webp',
+  'cr-coils':             'cold-rolled-steel072e.webp',
+  'cr-sheets':            'cold-rolled-steel-12ba9.webp',
+  'gp-sheets':            'galvanized-steel-sheets47fe.webp',
+  'gp-coils':             'gpsheetcoilc6bd.webp',
+  'gc-sheets':            'galvanized-corrugated-sheets7d36.webp',
+  'ppgl-colour-coils':    'Color-Coated-Coilsb58b.webp',
+  'colour-coils':         'color-coilb85d.webp',
+  'gp-slitted-coil':      'gp-slit-coil-952cf2f.webp',
+  'cr-slitted-coil':      '0-25mm-cold-rolled-coil-1000x1000cf88.webp',
+  'decking-sheets':       'decking-sheets-17e37.webp',
+  'puf-panels':           'PUF-Panels8be3.webp',
+  'upvc-sheets':          'UPVC-Sheet46e3.webp',
+  'polycarbonate-sheets': 'polycarbonate-sheets-1b014.webp',
+  'purlin':               'purlinc517.webp',
+  'roofing-screws':       'screws1580.webp',
+  'turbo-ventilator':     'Turbo-Fan12e6.webp',
+  'roofing-accessories':  'roofing-accessories-types0572.webp',
 }
 
 export const BRAND_LOGOS = {
-  SAIL: 'SAIL_LOGO_NEW3c71.png',
-  AMNS: 'amnse3b1.png',
-  JSW: 'jsw59f5.png',
-  Evonith: 'evonith310e.png',
+  SAIL:    'SAIL_LOGO_NEW3c71.webp',
+  AMNS:    'amnse3b1.webp',
+  JSW:     'jsw59f5.webp',
+  Evonith: 'evonith310e.webp',
 }

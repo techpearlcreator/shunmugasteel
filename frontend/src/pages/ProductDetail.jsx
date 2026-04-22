@@ -215,7 +215,7 @@ export default function ProductDetail() {
   const stdGst = (stdTotal * gst) / 100
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6 md:py-10">
+    <div className="max-w-7xl mx-auto px-4 pb-10" style={{ paddingTop: '110px' }}>
       {/* Back button + Breadcrumb */}
       <div className="mb-6">
         <button

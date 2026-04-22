@@ -40,7 +40,7 @@ export default function ContactPage() {
   return (
     <div>
       {/* Header */}
-      <div className="relative py-10 md:py-16" style={{ background: 'linear-gradient(135deg, #1A252F 0%, #2C3E50 100%)' }}>
+      <div className="relative pb-10 md:pb-16" style={{ background: '#000', paddingTop: '110px' }}>
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Contact Us</h1>
           <p className="mt-3 text-sm sm:text-base text-gray-300">We respond within 2 hours on working days. Bulk enquiries always welcome.</p>

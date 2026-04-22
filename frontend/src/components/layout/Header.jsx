@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { useQuoteStore } from '../../store/quoteStore'
@@ -6,29 +6,31 @@ import { LOGO_PATH } from '../../utils/cdn'
 import { productService } from '../../services/productService'
 import './Header.css'
 
-// ── Static fallback data ──────────────────────────────────────────────────────
+// ── Static fallback data (slugs verified against backend) ────────────────────
 const STATIC_FLAT = [
-  { name: 'Hot Rolled Steel',   slug: 'hr-coils-sheets' },
-  { name: 'Cold Rolled Steel',  slug: 'cr-coils-sheets' },
-  { name: 'Galvanized Steel',   slug: 'gp-sheets-coils' },
-  { name: 'GP Slitted Coil',    slug: 'gp-slitted-coil' },
-  { name: 'CR Slitted Coil',    slug: 'cr-slitted-coil' },
+  { name: 'Hot Rolled Coils & Sheets',  slug: 'hot-rolled-coils-sheets' },
+  { name: 'Cold Rolled Coils & Sheets', slug: 'cold-rolled-coils-sheets' },
+  { name: 'GP Sheets & Coils',          slug: 'gp-sheets-coils' },
+  { name: 'PPGL Colour Coated Coils',   slug: 'ppgl-colour-coated-coils' },
+  { name: 'GP Slitted Coils',           slug: 'gp-slitted-coils' },
+  { name: 'CR Slitted Coils',           slug: 'cr-slitted-coils' },
 ]
 const STATIC_ROOFING = [
-  { name: 'Galvanized Corrugated Sheets', slug: 'gc-sheets' },
-  { name: 'Pre-painted Colour Coated',    slug: 'ppgl-colour-coils' },
-  { name: 'Decking Sheets',               slug: 'decking-sheets' },
-  { name: 'Purlin',                        slug: 'purlin' },
-  { name: 'PUF Panels',                   slug: 'puf-panels' },
-  { name: 'UPVC Sheets',                  slug: 'upvc-sheets' },
+  { name: 'Galvanized Corrugated Sheets', slug: 'galvanized-corrugated-sheets' },
+  { name: 'Steel Decking Sheets',         slug: 'steel-decking-sheets' },
+  { name: 'PUF Sandwich Panels',          slug: 'puf-sandwich-panels' },
+  { name: 'UPVC Roofing Sheets',          slug: 'upvc-roofing-sheets' },
+  { name: 'Polycarbonate Roofing Sheets', slug: 'polycarbonate-roofing-sheets' },
+  { name: 'Z & C Purlin',                 slug: 'z-c-purlin' },
 ]
 const STATIC_ACCESSORIES = [
-  { name: 'Turbo Ventilators', slug: null },
-  { name: 'Roofing Screws',    slug: null },
+  { name: 'Roofing Screws',    slug: 'roofing-screws' },
+  { name: 'Turbo Ventilator',  slug: 'turbo-ventilator' },
+  { name: 'Roofing Accessories', slug: 'roofing-accessories' },
 ]
 
-
-let _menuCache = null
+let _menuCache  = null
+let _glowShown  = false
 
 // ── SVG Icons ─────────────────────────────────────────────────────────────────
 const IconUser = () => (
@@ -57,11 +59,8 @@ export default function Header() {
   const items     = useQuoteStore((s) => s.items)
   const navigate  = useNavigate()
   const location  = useLocation()
-  const glowRef   = useRef(null)
 
-  // Animation state
-  const [islandClass, setIslandClass] = useState('intro-circle')
-  // Hover expansion (separate from animation class)
+  // Hover expansion
   const [isExpanded,   setIsExpanded]   = useState(false)
   // Desktop dropdown: 'flat' | 'roofing' | 'acc' | null
   const [openDrop, setOpenDrop] = useState(null)
@@ -76,30 +75,18 @@ export default function Header() {
     accessories: STATIC_ACCESSORIES,
   })
 
-  // ── Entrance animation (matches navbar.html JS sequence exactly) ──────────
+  const [glowActive, setGlowActive] = useState(false)
+
+  // ── Border glow — home page only, once per session ────────────────────────
   useEffect(() => {
-    // 100ms: start ball bounce
-    const t1 = setTimeout(() => setIslandClass('intro-circle intro-bounce'), 100)
-    // 1500ms: expand to full pill (bounce animation is done at 1400ms)
-    const t2 = setTimeout(() => setIslandClass('intro-expand'), 1500)
-    // 2100ms: stagger-reveal nav content
-    const t3 = setTimeout(() => setIslandClass('intro-expand content-ready'), 2100)
-    // 4100ms: fade rainbow ring
-    const t4 = setTimeout(() => setIslandClass('intro-expand content-ready glow-fade'), 4100)
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4) }
+    if (_glowShown || location.pathname !== '/') return
+    _glowShown = true
+    setGlowActive(true)
+    const t = setTimeout(() => setGlowActive(false), 3100)
+    return () => clearTimeout(t)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // ── Cursor glow ────────────────────────────────────────────────────────────
-  useEffect(() => {
-    const handler = (e) => {
-      if (glowRef.current) {
-        glowRef.current.style.left = e.clientX + 'px'
-        glowRef.current.style.top  = e.clientY + 'px'
-      }
-    }
-    document.addEventListener('mousemove', handler)
-    return () => document.removeEventListener('mousemove', handler)
-  }, [])
 
   // ── API fetch (once per session via cache) ─────────────────────────────────
   useEffect(() => {
@@ -130,6 +117,7 @@ export default function Header() {
     return item.slug ? `/product/${item.slug}` : '/products/accessories'
   }
 
+
   // Magnetic ripple: update --mx / --my CSS vars on each nav link
   function handleMM(e) {
     const r  = e.currentTarget.getBoundingClientRect()
@@ -157,15 +145,14 @@ export default function Header() {
   }
 
   // ── Compose island className ───────────────────────────────────────────────
-  const isAnimating = islandClass.includes('intro-circle') || islandClass.includes('intro-bounce')
   const fullClass = [
-    islandClass,
-    !isAnimating && isExpanded ? 'expanded' : '',
+    glowActive ? 'glow-active' : '',
+    isExpanded ? 'expanded' : '',
     mobileOpen ? 'mobile-open' : '',
   ].filter(Boolean).join(' ')
 
   // ── Dropdown renderers ─────────────────────────────────────────────────────
-  function renderDropdown(key, icon, title, badge, items) {
+  function renderDropdown(key, title, badge, items) {
     return (
       <li
         className={`di-nav-item${openDrop === key ? ' open' : ''}`}
@@ -177,7 +164,6 @@ export default function Header() {
         </button>
         <div className="di-slim-dropdown" role="menu">
           <div className="di-dd-header">
-            <span className="di-dd-icon">{icon}</span>
             <span className="di-dd-title">{title}</span>
             {badge && <span className="di-dd-badge">{badge}</span>}
           </div>
@@ -199,8 +185,6 @@ export default function Header() {
 
   return (
     <>
-      {/* Cursor glow */}
-      <div ref={glowRef} id="di-cursor-glow" aria-hidden="true" />
 
       {/* Dynamic Island */}
       <div id="island-wrapper" role="banner">
@@ -236,9 +220,9 @@ export default function Header() {
                 </Link>
               </li>
 
-              {renderDropdown('flat',    '🔩', 'Flat Products', 'B2B',       menuItems.flat)}
-              {renderDropdown('roofing', '🏠', 'Roofing',       'B2C + B2B', menuItems.roofing)}
-              {renderDropdown('acc',     '🔧', 'Accessories',   null,        menuItems.accessories)}
+              {renderDropdown('flat',    'Flat Products', 'B2B',       menuItems.flat)}
+              {renderDropdown('roofing', 'Roofing',       'B2C + B2B', menuItems.roofing)}
+              {renderDropdown('acc',     'Accessories',   null,        menuItems.accessories)}
 
               <li className="di-nav-item">
                 <Link to="/about" className={`di-nav-link${isActive('/about') ? ' active' : ''}`} onMouseMove={handleMM}>About</Link>
@@ -296,7 +280,7 @@ export default function Header() {
                 onClick={() => toggleMobileAcc('flat')}
                 aria-expanded={mobileAcc === 'flat'}
               >
-                🔩 Flat Products
+                Flat Products
                 <span className="di-m-chev">▼</span>
               </button>
               <div className={`di-mobile-sub${mobileAcc === 'flat' ? ' open' : ''}`}>
@@ -312,7 +296,7 @@ export default function Header() {
                 onClick={() => toggleMobileAcc('roofing')}
                 aria-expanded={mobileAcc === 'roofing'}
               >
-                🏠 Roofing
+                Roofing
                 <span className="di-m-chev">▼</span>
               </button>
               <div className={`di-mobile-sub${mobileAcc === 'roofing' ? ' open' : ''}`}>
@@ -328,7 +312,7 @@ export default function Header() {
                 onClick={() => toggleMobileAcc('acc')}
                 aria-expanded={mobileAcc === 'acc'}
               >
-                🔧 Accessories
+                Accessories
                 <span className="di-m-chev">▼</span>
               </button>
               <div className={`di-mobile-sub${mobileAcc === 'acc' ? ' open' : ''}`}>

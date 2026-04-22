@@ -171,7 +171,7 @@ export default function CategoryPage() {
   return (
     <div>
       {/* Category Banner */}
-      <div style={{ position: 'relative', height: 'clamp(140px, 25vw, 220px)', overflow: 'hidden', background: '#1A252F' }}>
+      <div style={{ position: 'relative', minHeight: 'clamp(180px, 28vw, 260px)', overflow: 'hidden', background: '#000' }}>
         <img
           src={cdnImg(category.image || '')}
           alt={category.name}
@@ -179,7 +179,7 @@ export default function CategoryPage() {
           onError={(e) => { e.target.style.display = 'none' }}
         />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg,rgba(26,37,47,0.95) 0%,rgba(44,62,80,0.6) 100%)' }} />
-        <div className="container" style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div className="container" style={{ position: 'relative', paddingTop: '110px', paddingBottom: '32px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
           <nav style={{ fontSize: '12px', color: '#aaa', marginBottom: '12px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '4px' }}>
             <Link to="/" style={{ color: '#aaa', textDecoration: 'none' }}>Home</Link>
             <span style={{ margin: '0 8px' }}>›</span>

@@ -1,6 +1,6 @@
 export const SLIDES = [
   {
-    src: '/animation.mp4',
+    src: '/animation_compressed.mp4',
     brand: 'Steel Coils',
     overlays: [
       { range: [0,   2.7], text: 'Built from Strength',            dir: 'left',   sub: 'Premium grade steel crafted for a generation of builders.' },
@@ -9,7 +9,7 @@ export const SLIDES = [
     ],
   },
   {
-    src: '/turbo.mp4',
+    src: '/turbo_compressed.mp4',
     brand: 'Turbo Ventilators',
     overlays: [
       { range: [0,   2.7], text: 'Industrial Ventilation',         dir: 'left',   sub: 'High-performance wind-powered ventilators for industrial roofing.' },
@@ -18,7 +18,7 @@ export const SLIDES = [
     ],
   },
   {
-    src: '/puf.mp4',
+    src: '/puf_compressed.mp4',
     brand: 'PUF Panels',
     overlays: [
       { range: [0,   2.7], text: 'Insulated Roofing',              dir: 'left',   sub: 'PUF sandwich panels for premium temperature control.' },

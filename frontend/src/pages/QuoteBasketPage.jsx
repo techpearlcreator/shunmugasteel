@@ -84,7 +84,7 @@ export default function QuoteBasketPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10">
+    <div className="max-w-7xl mx-auto px-4 pb-10" style={{ paddingTop: '110px' }}>
       <h1 className="text-2xl font-bold text-gray-800 mb-1">Quote Basket</h1>
       <p className="text-sm text-gray-500 mb-8">{items.length} item{items.length !== 1 ? 's' : ''} ready for quote</p>
 

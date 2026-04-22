@@ -3,7 +3,7 @@ import { LOGO_PATH } from '../utils/cdn'
 
 export default function NotFoundPage() {
   return (
-    <div className="min-h-[calc(100vh-140px)] flex items-center justify-center py-16 px-4" style={{ background: '#F8F9FA' }}>
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#F8F9FA', paddingTop: '110px', paddingBottom: '48px' }}>
       <div className="text-center max-w-md">
         <img
           src={LOGO_PATH}

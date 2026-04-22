@@ -2,6 +2,7 @@
    DYNAMIC ISLAND NAVBAR — Header.css
    Scoped under #island / #island-wrapper to avoid theme conflicts
 ============================================================ */
+/* Oswald loaded via <link> in index.html for better performance */
 
 :root {
   --di-accent:    #c0392b;
@@ -14,18 +15,6 @@
   --di-shadow-lg: 0 16px 48px rgba(0,0,0,0.14), 0 0 0 1px rgba(0,0,0,0.07);
 }
 
-/* ── Cursor glow ── */
-#di-cursor-glow {
-  position: fixed;
-  width: 400px;
-  height: 400px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(192,57,43,0.07) 0%, transparent 70%);
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  transition: left 0.08s linear, top 0.08s linear;
-  z-index: 999;
-}
 
 /* ── Wrapper ── */
 #island-wrapper {
@@ -55,58 +44,51 @@
     background 0.35s ease,
     max-width 0.55s var(--di-spring),
     width 0.6s var(--di-spring),
-    height 0.45s var(--di-spring);
+    height 0.45s var(--di-spring),
+    opacity 0.65s ease,
+    transform 0.65s var(--di-spring);
   overflow: visible;
 }
 
-/* ── Entrance: circle start ── */
-#island.intro-circle {
-  width: 60px;
-  height: 60px;
-  max-width: 60px;
-  overflow: visible;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* ── Entrance: fade-in (home page only, plays once) ── */
+#island.entering {
+  opacity: 0;
+  transform: translateY(-14px);
 }
 
-/* ── Entrance: bounce (ball drops down) ── */
-#island.intro-bounce {
-  animation: di-navbar-bounce 1.4s var(--di-spring) forwards;
-}
-
-/* ── Entrance: expand to full pill ── */
-#island.intro-expand {
-  width: 100%;
-  max-width: 1140px;
-  height: 74px !important;
-}
-
-/* ── Rainbow border ring ── */
+/* ── Hot steel border ring ── */
 #island::before {
   content: '';
   position: absolute;
-  inset: -6px;
-  padding: 4px;
+  inset: -2px;
+  padding: 2px;
   border-radius: inherit;
   background: conic-gradient(from 0deg,
-    #ff0000,#ff7f00,#ffff00,#00ff00,#0000ff,#4b0082,#9400d3,#ff0000);
+    #3D0000, #7A0000, #BB0000, #FF0000, #CC0000,
+    #FF0000, #BB0000, #7A0000, #3D0000);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
-  animation:
-    di-spin 1.2s linear infinite,
-    di-pulse-glow 1.4s ease-in-out infinite,
-    di-rainbow 4s linear infinite;
-  opacity: 0;
-  transition: opacity 0.5s ease;
+  animation: none;
   z-index: -1;
   pointer-events: none;
+  box-shadow:
+    0 0 6px 2px rgba(200, 0, 0, 0.6),
+    0 0 14px 4px rgba(180, 0, 0, 0.35);
 }
-#island.intro-bounce::before,
-#island.intro-expand::before,
-#island.content-ready::before { opacity: 1; visibility: visible; }
-#island.glow-fade::before { opacity: 0 !important; transition: opacity 1s ease; }
+#island.glow-active {
+  animation: di-island-glow 3s ease-in-out 1 forwards;
+}
+#island.glow-active::before {
+  animation: di-intro-glow 3s ease-in-out 1 forwards;
+}
+@keyframes di-island-glow {
+  0%   { box-shadow: var(--di-shadow-sm); }
+  20%  { -webkit-box-shadow: 0px 0px 39px 9px rgba(255,0,0,0.9); box-shadow: 0px 0px 39px 9px rgba(255,0,0,0.9); }
+  65%  { -webkit-box-shadow: 0px 0px 39px 9px rgba(255,0,0,0.7); box-shadow: 0px 0px 39px 9px rgba(255,0,0,0.7); }
+  100% { box-shadow: var(--di-shadow-sm); }
+}
 
 /* ── Hover expanded ── */
 #island.expanded {
@@ -124,20 +106,13 @@
 }
 
 /* ── Keyframes ── */
-@keyframes di-navbar-bounce {
-  0%   { transform: translateY(-100px) scaleY(1.2); opacity: 0; }
-  30%  { transform: translateY(0) scaleY(0.85);     opacity: 1; }
-  50%  { transform: translateY(-25px) scaleY(1.05); }
-  70%  { transform: translateY(0) scaleY(0.95); }
-  85%  { transform: translateY(-8px) scaleY(1.02); }
-  100% { transform: translateY(0) scaleY(1);         opacity: 1; }
+@keyframes di-intro-glow {
+  0%   { opacity: 0;   filter: blur(2px) brightness(1);   box-shadow: none; }
+  20%  { opacity: 1;   filter: blur(0px) brightness(1.6); box-shadow: 0 0 10px 3px rgba(255,0,0,0.85), 0 0 28px 8px rgba(200,0,0,0.45), 0 0 50px 12px rgba(160,0,0,0.2); }
+  55%  { opacity: 0.5; filter: blur(2px) brightness(1);   box-shadow: 0 0 6px 2px rgba(200,0,0,0.5), 0 0 14px 4px rgba(180,0,0,0.25); }
+  80%  { opacity: 1;   filter: blur(0px) brightness(1.6); box-shadow: 0 0 10px 3px rgba(255,0,0,0.85), 0 0 28px 8px rgba(200,0,0,0.45), 0 0 50px 12px rgba(160,0,0,0.2); }
+  100% { opacity: 0;   filter: blur(2px) brightness(1);   box-shadow: none; }
 }
-@keyframes di-spin      { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
-@keyframes di-pulse-glow {
-  0%,100% { opacity: 0.8; filter: blur(20px) brightness(1.4); transform: scale(1); }
-  50%     { opacity: 1;   filter: blur(25px) brightness(1.8); transform: scale(1.02); }
-}
-@keyframes di-rainbow   { 0%{filter:hue-rotate(0deg);} 100%{filter:hue-rotate(360deg);} }
 
 /* ── Navbar Row ── */
 #di-navbar-row {
@@ -148,35 +123,40 @@
   height: 74px;
   transition: padding 0.4s var(--di-ease-out), height 0.4s var(--di-ease-out), opacity 0.3s ease;
 }
-#island.intro-circle #di-navbar-row { opacity: 0; pointer-events: none; }
-#island.expanded #di-navbar-row     { padding: 16px 36px; }
+#island.expanded #di-navbar-row { padding: 16px 36px; }
 
-/* ── Content visibility (hidden during ball animation, stagger-reveals after) ── */
-#island.intro-circle .di-nav-item,
-#island.intro-circle .di-logo,
-#island.intro-circle .di-nav-icons,
-#island.intro-bounce .di-nav-item,
-#island.intro-bounce .di-logo,
-#island.intro-bounce .di-nav-icons {
+/* ── Content visibility (hidden during fade-in, stagger-reveals after) ── */
+#island.entering .di-nav-item,
+#island.entering .di-logo,
+#island.entering .di-nav-icons {
   opacity: 0; transform: translateY(8px); pointer-events: none;
   transition: opacity 0.45s var(--di-ease-out), transform 0.45s var(--di-spring);
 }
 #island.content-ready .di-nav-item,
 #island.content-ready .di-logo,
 #island.content-ready .di-nav-icons,
-#island:not(.intro-circle):not(.intro-bounce) .di-nav-item,
-#island:not(.intro-circle):not(.intro-bounce) .di-logo,
-#island:not(.intro-circle):not(.intro-bounce) .di-nav-icons {
+#island:not(.entering) .di-nav-item,
+#island:not(.entering) .di-logo,
+#island:not(.entering) .di-nav-icons {
   opacity: 1; transform: translateY(0); pointer-events: auto;
   transition: opacity 0.45s var(--di-ease-out), transform 0.45s var(--di-spring);
 }
-/* Stagger delays */
+/* Stagger delays (only during the fade-in entrance) */
 #island.content-ready .di-logo                  { transition-delay: 0.05s; }
 #island.content-ready .di-nav-item:nth-child(2) { transition-delay: 0.12s; }
 #island.content-ready .di-nav-item:nth-child(3) { transition-delay: 0.18s; }
 #island.content-ready .di-nav-item:nth-child(4) { transition-delay: 0.24s; }
 #island.content-ready .di-nav-item:nth-child(5) { transition-delay: 0.30s; }
 #island.content-ready .di-nav-icons             { transition-delay: 0.38s; }
+
+/* ── Oswald font for all nav text ── */
+#island .di-nav-link,
+#island .di-mobile-link,
+#island .di-dd-title,
+#island .di-msub-title {
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 0.6px;
+}
 
 /* ── Logo ── */
 #island .di-logo {
@@ -202,10 +182,10 @@
 
 #island .di-nav-link {
   -webkit-appearance: none; appearance: none;
-  border: none; background: transparent; font-family: inherit;
+  border: none; background: transparent; font-family: 'Oswald', sans-serif;
   display: inline-flex; align-items: center; gap: 5px;
-  padding: 9px 15px; font-size: 14px; font-weight: 500;
-  letter-spacing: 0.1px; color: var(--di-muted);
+  padding: 9px 15px; font-size: 14px; font-weight: 700;
+  letter-spacing: 0.4px; color: rgba(30,30,50,0.75);
   text-decoration: none; border-radius: 30px;
   transition: color 0.25s ease, background 0.25s ease, transform 0.25s var(--di-spring);
   white-space: nowrap; cursor: pointer; position: relative; line-height: 1;
@@ -284,8 +264,9 @@
 /* Mega links */
 #island .di-mega-link {
   display: flex; align-items: center; gap: 10px;
-  padding: 8px 10px; border-radius: 10px; text-decoration: none;
-  color: rgba(30,30,50,0.60); font-size: 12.5px; font-weight: 450;
+  padding: 9px 10px; border-radius: 10px; text-decoration: none;
+  color: rgba(30,30,50,0.75); font-size: 14px; font-weight: 600;
+  font-family: 'Oswald', sans-serif; letter-spacing: 0.4px;
   transition: background 0.2s ease, color 0.2s ease, transform 0.3s var(--di-spring), opacity 0.3s ease;
   position: relative; overflow: hidden; opacity: 0; transform: translateY(5px);
 }
@@ -307,7 +288,7 @@
   transition: background 0.2s ease, transform 0.3s var(--di-spring);
 }
 #island .di-mega-link:hover .di-mega-link-icon { background: rgba(192,57,43,0.10); transform: scale(1.1) rotate(-5deg); }
-#island .di-mega-link-label { font-size: 12px; font-weight: 500; color: inherit; display: block; }
+#island .di-mega-link-label { font-size: 14px; font-weight: 700; color: inherit; display: block; letter-spacing: 0.3px; }
 #island .di-mega-link-desc  { font-size: 10px; color: rgba(30,30,50,0.35); margin-top: 1px; display: block; }
 
 /* ── Right Icon Buttons ── */
@@ -356,10 +337,12 @@
 #island .di-mobile-link {
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 10px; color: var(--di-muted); text-decoration: none;
-  font-size: 15px; font-weight: 500; border-bottom: 1px solid rgba(0,0,0,0.05);
+  font-size: 15px; font-weight: 700; letter-spacing: 0.4px;
+  font-family: 'Oswald', sans-serif;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
   transition: color 0.2s ease; cursor: pointer;
   background: none; border-left: none; border-right: none; border-top: none;
-  width: 100%; text-align: left; font-family: inherit;
+  width: 100%; text-align: left;
 }
 #island .di-mobile-link:hover { color: var(--di-text); }
 #island .di-mobile-link .di-m-chev {
@@ -373,6 +356,7 @@
 #island .di-msub-title { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--di-accent); padding: 10px 0 6px; display: block; }
 #island .di-msub-link {
   display: block; padding: 7px 0; font-size: 13.5px; color: var(--di-muted);
+  font-family: 'Oswald', sans-serif; font-weight: 600; letter-spacing: 0.3px;
   text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.04);
   transition: color 0.2s ease, padding-left 0.2s ease;
 }

@@ -21,7 +21,7 @@ export default function AboutPage() {
   return (
     <div>
       {/* Hero */}
-      <div className="relative py-12 md:py-20 overflow-hidden" style={{ background: 'linear-gradient(135deg, #1A252F 0%, #2C3E50 100%)' }}>
+      <div className="relative pb-12 md:pb-20 overflow-hidden" style={{ background: '#000', paddingTop: '110px' }}>
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(45deg, #E67E22 0, #E67E22 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }} />
         <div className="relative max-w-5xl mx-auto px-4 text-center">
           <div className="inline-block bg-orange-500 bg-opacity-20 border border-orange-500 border-opacity-30 rounded-full px-4 py-1.5 mb-5">

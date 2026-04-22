@@ -5,18 +5,25 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shunmuga Steel Traders - Premium Steel Since 1976</title>
-    <!-- Preconnect to Google Fonts for faster font loading -->
+    <!-- Preconnect to Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Critical CSS: icons + layout (render-blocking is acceptable for these) -->
+    <!-- Oswald font — async, non-blocking -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&display=swap"></noscript>
+    <!-- Hero poster — preload so browser fetches it before React boots -->
+    <link rel="preload" as="image" href="/hero-poster.webp">
+    <!-- Critical CSS only: icons (tiny, needed before first paint) -->
     <link rel="stylesheet" href="/assets/icon/icomoon/style.css">
-    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/assets/css/styles.css">
-    <!-- Non-critical CSS: loaded async -->
+    <!-- Non-critical CSS: all loaded async to unblock first paint -->
+    <link rel="preload" href="/assets/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/assets/css/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="preload" href="/assets/fonts/fonts.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="preload" href="/assets/css/swiper-bundle.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="preload" href="/assets/css/animate.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript>
+      <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+      <link rel="stylesheet" href="/assets/css/styles.css">
       <link rel="stylesheet" href="/assets/fonts/fonts.css">
       <link rel="stylesheet" href="/assets/css/swiper-bundle.min.css">
       <link rel="stylesheet" href="/assets/css/animate.css">

@@ -28,10 +28,7 @@ export default defineConfig({
           if (id.includes('node_modules/swiper')) {
             return 'swiper'
           }
-          if (id.includes('node_modules/framer-motion')) {
-            return 'framer-motion'
-          }
-          if (id.includes('node_modules/axios')) {
+if (id.includes('node_modules/axios')) {
             return 'http'
           }
           if (id.includes('node_modules/react-hook-form') || id.includes('node_modules/zustand')) {
