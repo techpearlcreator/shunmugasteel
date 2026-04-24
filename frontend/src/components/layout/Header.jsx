@@ -103,7 +103,7 @@ export default function Header() {
       const roofing   = extract(roofingRes).length ? extract(roofingRes) : STATIC_ROOFING
       const accRaw    = extract(accRes)
       const accessories = accRaw.length
-        ? accRaw.map((p) => ({ name: p.name, slug: null }))
+        ? accRaw.map((p) => ({ name: p.name, slug: p.slug }))
         : STATIC_ACCESSORIES
       _menuCache = { flat, roofing, accessories }
       setMenuItems(_menuCache)
@@ -151,17 +151,30 @@ export default function Header() {
     mobileOpen ? 'mobile-open' : '',
   ].filter(Boolean).join(' ')
 
+  // ── Category paths ────────────────────────────────────────────────────────
+  const CATEGORY_PATHS = {
+    flat:    '/products/flat-products',
+    roofing: '/products/roofing-products',
+    acc:     '/products/accessories',
+  }
+
   // ── Dropdown renderers ─────────────────────────────────────────────────────
   function renderDropdown(key, title, badge, items) {
+    const catPath = CATEGORY_PATHS[key]
     return (
       <li
         className={`di-nav-item${openDrop === key ? ' open' : ''}`}
         onMouseEnter={() => onDropEnter(key)}
         onMouseLeave={onDropLeave}
       >
-        <button className={`di-nav-link${isActive('/products/' + key + '-products') ? ' active' : ''}`} onMouseMove={handleMM}>
+        <Link
+          to={catPath}
+          className={`di-nav-link${isActive(catPath) ? ' active' : ''}`}
+          onMouseMove={handleMM}
+          onClick={() => setOpenDrop(null)}
+        >
           {title} <span className="di-chevron" aria-hidden="true" />
-        </button>
+        </Link>
         <div className="di-slim-dropdown" role="menu">
           <div className="di-dd-header">
             <span className="di-dd-title">{title}</span>

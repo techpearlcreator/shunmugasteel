@@ -5,8 +5,8 @@ function getActiveOverlay(time, overlays) {
   return overlays.find((o) => time >= o.range[0] && time < o.range[1]) ?? null;
 }
 
-export default function HeroBanner({ ctaText = 'Explore Products', ctaHref = '/products/flat-products' }) {
-  const videoRefs  = [useRef(null), useRef(null), useRef(null)];
+export default function HeroBanner({ ctaText = 'Explore Products' }) {
+  const videoRefs = [useRef(null), useRef(null), useRef(null)];
   const [current, setCurrent] = useState(0);
   const [overlay, setOverlay] = useState(null);
   const [visible, setVisible] = useState(false);
@@ -16,8 +16,8 @@ export default function HeroBanner({ ctaText = 'Explore Products', ctaHref = '/p
     SLIDES.forEach((_, i) => {
       const v = videoRefs[i].current;
       if (!v) return;
-      if (i === current) { v.currentTime = 0; v.play().catch(() => {}); }
-      else               { v.pause(); v.currentTime = 0; }
+      if (i === current) { v.currentTime = 0; v.play().catch(() => { }); }
+      else { v.pause(); v.currentTime = 0; }
     });
     setOverlay(null);
     setVisible(false);
@@ -52,7 +52,7 @@ export default function HeroBanner({ ctaText = 'Explore Products', ctaHref = '/p
           onEnded={i === current ? handleEnded : undefined}
           className="absolute inset-0 w-full h-full object-cover"
           style={{
-            opacity:    i === current ? 1 : 0,
+            opacity: i === current ? 1 : 0,
             transition: 'opacity 0.7s ease',
             pointerEvents: 'none',
           }}
@@ -91,7 +91,7 @@ export default function HeroBanner({ ctaText = 'Explore Products', ctaHref = '/p
                 </p>
               </div>
               <a
-                href={ctaHref}
+                href={SLIDES[current].ctahref}
                 className="pointer-events-auto mt-2"
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 10,
@@ -103,7 +103,7 @@ export default function HeroBanner({ ctaText = 'Explore Products', ctaHref = '/p
               >
                 {ctaText}
                 <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                  <path d="M2.5 6.5H10.5M10.5 6.5L7 3M10.5 6.5L7 10" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2.5 6.5H10.5M10.5 6.5L7 3M10.5 6.5L7 10" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </a>
             </div>

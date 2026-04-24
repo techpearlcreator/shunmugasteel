@@ -175,13 +175,8 @@ export default function Settings() {
           {/* QUOTE SETTINGS */}
           {tab === 'quote' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <div style={gridStyle}>
+              <div style={{ maxWidth: 320 }}>
                 <Field label="Quote Number Prefix"><Input value={company.quote_prefix||'SST'} onChange={(e)=>set('quote_prefix',e.target.value)} placeholder="SST" /></Field>
-                <div />
-                <Field label="Bank Name"><Input value={company.quote_bank_name||''} onChange={(e)=>set('quote_bank_name',e.target.value)} /></Field>
-                <Field label="Account Number"><Input value={company.quote_account_number||''} onChange={(e)=>set('quote_account_number',e.target.value)} /></Field>
-                <Field label="IFSC Code"><Input value={company.quote_ifsc||''} onChange={(e)=>set('quote_ifsc',e.target.value)} /></Field>
-                <Field label="UPI ID"><Input value={company.quote_upi_id||''} onChange={(e)=>set('quote_upi_id',e.target.value)} /></Field>
               </div>
               <Field label="Quote Footer Terms & Conditions">
                 <textarea value={company.quote_footer_terms||''} onChange={(e)=>set('quote_footer_terms',e.target.value)}

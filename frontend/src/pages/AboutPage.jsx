@@ -102,7 +102,6 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-
       {/* Timeline */}
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4">
@@ -110,45 +109,65 @@ export default function AboutPage() {
             <h2 className="text-3xl font-bold text-gray-800">Our Journey</h2>
             <p className="mt-2 text-gray-500">Key milestones in 48 years of steel trading</p>
           </div>
+
           <div className="relative">
-            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-200 -translate-x-1/2 hidden md:block" />
-            <div className="space-y-8">
-              {MILESTONES.map((m, i) => (
-                <div key={m.year} className={`relative flex flex-col md:flex-row gap-6 items-start md:items-center ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
-                  <div className="md:w-1/2 flex flex-col items-start md:items-end">
-                    {i % 2 === 0 ? (
-                      <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm md:mr-8 w-full">
-                        <div className="text-lg font-bold mb-1 md:hidden" style={{ color: '#E67E22' }}>{m.year}</div>
+            {/* Vertical line — hidden on mobile */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-200 -translate-x-1/2 hidden md:block" />
+
+            <div className="flex flex-col gap-10">
+              {MILESTONES.map((m, i) => {
+                const isEven = i % 2 === 0;
+                return (
+                  <div key={m.year} className="relative grid grid-cols-[40px_1fr] md:grid-cols-[1fr_40px_1fr] items-center">
+
+                    {/* LEFT SLOT — desktop only */}
+                    <div className="hidden md:flex items-center justify-end pr-8">
+                      {isEven ? (
+                        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm w-full">
+                          <h3 className="font-bold text-gray-800 text-lg">{m.title}</h3>
+                          <p className="text-sm text-gray-500 mt-1">{m.desc}</p>
+                        </div>
+                      ) : (
+                        <span className="text-2xl font-bold" style={{ color: '#E67E22' }}>{m.year}</span>
+                      )}
+                    </div>
+
+                    {/* DOT */}
+                    <div className="flex justify-center items-start md:items-center pt-5 md:pt-0 relative z-10">
+                      <div
+                        className="w-3.5 h-3.5 rounded-full border-2 border-white"
+                        style={{ background: '#E67E22', boxShadow: '0 0 0 1px #E67E22' }}
+                      />
+                    </div>
+
+                    {/* RIGHT SLOT — desktop only */}
+                    <div className="hidden md:flex items-center justify-start pl-8">
+                      {isEven ? (
+                        <span className="text-2xl font-bold" style={{ color: '#E67E22' }}>{m.year}</span>
+                      ) : (
+                        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm w-full">
+                          <h3 className="font-bold text-gray-800 text-lg">{m.title}</h3>
+                          <p className="text-sm text-gray-500 mt-1">{m.desc}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* MOBILE — card + year stacked */}
+                    <div className="md:hidden col-start-2">
+                      <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                        <span className="text-base font-bold block mb-1" style={{ color: '#E67E22' }}>{m.year}</span>
                         <h3 className="font-bold text-gray-800">{m.title}</h3>
                         <p className="text-sm text-gray-500 mt-1">{m.desc}</p>
                       </div>
-                    ) : (
-                      <div className="hidden md:flex justify-end w-full pr-8">
-                        <div className="text-2xl font-bold" style={{ color: '#E67E22' }}>{m.year}</div>
-                      </div>
-                    )}
+                    </div>
+
                   </div>
-                  <div className="absolute left-1/2 top-5 -translate-x-1/2 w-4 h-4 rounded-full border-4 border-white shadow hidden md:block" style={{ background: '#E67E22' }} />
-                  <div className="md:w-1/2">
-                    {i % 2 === 0 ? (
-                      <div className="hidden md:flex pl-8">
-                        <div className="text-2xl font-bold" style={{ color: '#E67E22' }}>{m.year}</div>
-                      </div>
-                    ) : (
-                      <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm md:ml-8 w-full">
-                        <div className="text-lg font-bold mb-1 md:hidden" style={{ color: '#E67E22' }}>{m.year}</div>
-                        <h3 className="font-bold text-gray-800">{m.title}</h3>
-                        <p className="text-sm text-gray-500 mt-1">{m.desc}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
       </section>
-
       {/* Brand Partners */}
       <section className="py-16" style={{ background: '#F8F9FA' }}>
         <div className="max-w-7xl mx-auto px-4 text-center">

@@ -177,25 +177,13 @@ function ProductCard({ product }) {
   return (
     <div className="card-product product-style_stroke">
       <div className="card-product_wrapper square">
-        <Link to={`/products/${product.slug}`} className="product-img">
+        <Link to={`/product/${product.slug}`} className="product-img">
           <img className="img-product" loading="lazy" width="330" height="330" src={product.image} alt={product.name} />
           <img className="img-hover" loading="lazy" width="330" height="330" src={product.image} alt={product.name} />
         </Link>
         <ul className="product-action_list">
-          <li className="wishlist">
-            <a href="#" className="hover-tooltip tooltip-left box-icon" onClick={(e) => e.preventDefault()}>
-              <span className="icon icon-heart"></span>
-              <span className="tooltip">Add to Wishlist</span>
-            </a>
-          </li>
-          <li className="compare">
-            <Link to={`/products/${product.slug}`} className="hover-tooltip tooltip-left box-icon">
-              <span className="icon icon-ArrowsLeftRight"></span>
-              <span className="tooltip">Compare</span>
-            </Link>
-          </li>
           <li>
-            <Link to={`/products/${product.slug}`} className="hover-tooltip tooltip-left box-icon">
+            <Link to={`/product/${product.slug}`} className="hover-tooltip tooltip-left box-icon">
               <span className="icon icon-Eye"></span>
               <span className="tooltip">Quick view</span>
             </Link>
@@ -215,7 +203,7 @@ function ProductCard({ product }) {
         </div>
       </div>
       <div className="card-product_info">
-        <Link to={`/products/${product.slug}`} className="name-product lh-24 fw-medium link-underline-text">
+        <Link to={`/product/${product.slug}`} className="name-product lh-24 fw-medium link-underline-text">
           {product.name}
         </Link>
         <div className="star-wrap d-flex align-items-center">

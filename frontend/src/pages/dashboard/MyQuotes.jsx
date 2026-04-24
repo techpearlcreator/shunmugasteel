@@ -4,11 +4,11 @@ import { quoteService } from '../../services/quoteService'
 import { useAuthStore } from '../../store/authStore'
 
 const STATUS_CONFIG = {
-  submitted:  { label: 'Submitted',      color: 'bg-yellow-100 text-yellow-800' },
-  reviewed:   { label: 'Under Review',   color: 'bg-blue-100 text-blue-800' },
-  confirmed:  { label: 'Quote Confirmed',color: 'bg-purple-100 text-purple-800' },
-  dispatched: { label: 'Dispatched',     color: 'bg-teal-100 text-teal-800' },
-  cancelled:  { label: 'Cancelled',      color: 'bg-red-100 text-red-800' },
+  submitted: { label: 'Submitted', color: 'bg-yellow-100 text-yellow-800' },
+  reviewed: { label: 'Under Review', color: 'bg-blue-100 text-blue-800' },
+  confirmed: { label: 'Quote Confirmed', color: 'bg-purple-100 text-purple-800' },
+  dispatched: { label: 'Dispatched', color: 'bg-teal-100 text-teal-800' },
+  cancelled: { label: 'Cancelled', color: 'bg-red-100 text-red-800' },
 }
 
 const FALLBACK_QUOTES = [
@@ -73,12 +73,12 @@ export default function MyQuotes() {
           <Link to="/products/flat-products" className="mt-6 inline-block px-6 py-3 rounded-lg font-semibold text-white text-sm" style={{ background: '#E67E22' }}>Browse Products</Link>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4" style={{ padding: '20px' }} >
           {quotes.map((quote) => {
             const st = STATUS_CONFIG[quote.status] || { label: quote.status, color: 'bg-gray-100 text-gray-600' }
             return (
-              <div key={quote.id} className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-sm transition-shadow">
-                <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div key={quote.id} className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-sm transition-shadow" style={{ margin: '20px' }}>
+                <div className="flex items-start justify-between gap-4 flex-wrap" style={{ padding: '10px' }}>
                   <div>
                     <div className="flex items-center gap-3 flex-wrap">
                       <h3 className="font-semibold text-gray-800">{quote.quote_number || 'Quote #' + quote.id}</h3>

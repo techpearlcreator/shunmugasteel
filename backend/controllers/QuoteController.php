@@ -264,11 +264,13 @@ class QuoteController {
         $total     = $subtotal + $gstAmount;
         $validUntil = date('Y-m-d', strtotime("+$validDays days"));
 
-        // Generate quote number: SST-2026-XXXX
-        $year  = date('Y');
-        $stmt  = $this->db->query("SELECT COUNT(*) as cnt FROM quotes WHERE YEAR(created_at) = $year");
-        $count = (int)$stmt->fetch()['cnt'] + 1;
-        $quoteNumber = sprintf('SST-%d-%04d', $year, $count);
+        // Generate quote number using prefix from settings (fallback: SST)
+        $prefixRow = $this->db->query("SELECT setting_value FROM company_settings WHERE setting_key = 'quote_prefix' LIMIT 1")->fetch();
+        $prefix    = ($prefixRow && trim($prefixRow['setting_value']) !== '') ? strtoupper(trim($prefixRow['setting_value'])) : 'SST';
+        $year      = date('Y');
+        $stmt      = $this->db->query("SELECT COUNT(*) as cnt FROM quotes WHERE YEAR(created_at) = $year");
+        $count     = (int)$stmt->fetch()['cnt'] + 1;
+        $quoteNumber = sprintf('%s-%d-%04d', $prefix, $year, $count);
 
         // Insert quote header + items atomically
         $this->db->beginTransaction();
